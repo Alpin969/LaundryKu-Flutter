@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
 
 import '../../config/app_theme.dart';
+import '../../models/layanan.dart';
 import '../../models/pesanan.dart';
 import '../../models/status_pesanan.dart';
 import '../../services/api_client.dart';
+import '../../services/layanan_service.dart';
 import '../../services/pesanan_service.dart';
+import '../../widgets/kartu_layanan.dart';
 import '../../widgets/kartu_pesanan.dart';
 import '../../widgets/tampilan_status.dart';
 import 'daftar_layanan_screen.dart';
+import 'detail_layanan_screen.dart';
 import 'detail_pesanan_screen.dart';
 import 'form_pemesanan_screen.dart';
 
@@ -36,10 +40,13 @@ class BerandaScreen extends StatefulWidget {
 
 class BerandaScreenState extends State<BerandaScreen> {
   final PesananService _pesananService = const PesananService();
+  final LayananService _layananService = const LayananService();
 
   List<Pesanan> _pesananAktif = <Pesanan>[];
+  List<Layanan> _layanan = <Layanan>[];
   bool _memuat = true;
   String? _galat;
+  String? _galatLayanan;
 
   @override
   void initState() {
@@ -67,6 +74,23 @@ class BerandaScreenState extends State<BerandaScreen> {
     } finally {
       if (mounted) setState(() => _memuat = false);
     }
+
+    // Layanan dimuat terpisah dari pesanan: kegagalannya tidak boleh
+    // menyembunyikan pesanan aktif yang sudah berhasil ditampilkan.
+    try {
+      final List<Layanan> layanan = await _layananService.daftarSemua();
+      if (!mounted) return;
+      setState(() {
+        _layanan = layanan;
+        _galatLayanan = null;
+      });
+    } on ApiException catch (kesalahan) {
+      if (!mounted) return;
+      setState(() {
+        _layanan = <Layanan>[];
+        _galatLayanan = kesalahan.pesan;
+      });
+    }
   }
 
   int _jumlah(StatusPesanan status) =>
@@ -84,6 +108,8 @@ class BerandaScreenState extends State<BerandaScreen> {
           SliverToBoxAdapter(child: _sapaan()),
           SliverToBoxAdapter(child: _ringkasan()),
           SliverToBoxAdapter(child: _aksiCepat()),
+          SliverToBoxAdapter(child: _judulLayanan()),
+          SliverToBoxAdapter(child: _isiLayanan()),
           SliverToBoxAdapter(child: _judulPesananAktif()),
           ..._isiPesananAktif(),
           SliverToBoxAdapter(child: _judulStatus()),
@@ -271,6 +297,130 @@ class BerandaScreenState extends State<BerandaScreen> {
       ),
     );
     await muatUlang();
+  }
+
+  /// Layanan ditampilkan langsung di beranda supaya pelanggan bisa melihat
+  /// harga tanpa harus membuka halaman lain lebih dulu.
+  ///
+  /// Backend belum menyediakan data layanan mana yang paling banyak dipesan,
+  /// jadi urutan di sini bukan peringkat popularitas.
+  Widget _judulLayanan() {
+    return const Padding(
+      padding: EdgeInsets.fromLTRB(Jarak.xl, Jarak.xl, Jarak.xl, Jarak.md),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Text(
+            'Layanan Laundry',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: Warna.teksUtama,
+            ),
+          ),
+          SizedBox(height: Jarak.xs),
+          Text(
+            'Harga per kilogram dan estimasi pengerjaan sesuai data server.',
+            style: TextStyle(
+              fontSize: 13,
+              color: Warna.teksKedua,
+              height: 1.55,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _isiLayanan() {
+    if (_galatLayanan != null) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: Jarak.xl),
+        child: TampilanGagal(
+          pesan: _galatLayanan!,
+          judul: 'Daftar layanan tidak bisa dimuat',
+          onCobaLagi: muatUlang,
+          ringkas: true,
+        ),
+      );
+    }
+
+    if (_memuat && _layanan.isEmpty) {
+      return const TampilanMemuat(
+        keterangan: 'Memuat layanan...',
+        ringkas: true,
+      );
+    }
+
+    if (_layanan.isEmpty) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: Jarak.xl),
+        child: Container(
+          padding: const EdgeInsets.all(Jarak.lg),
+          decoration: BoxDecoration(
+            color: Warna.permukaan,
+            borderRadius: BorderRadius.circular(Sudut.kartu),
+            border: Border.all(color: Warna.garis),
+          ),
+          child: const Row(
+            children: <Widget>[
+              Icon(
+                Icons.local_laundry_service_outlined,
+                size: 22,
+                color: Warna.teksSamar,
+              ),
+              SizedBox(width: Jarak.md),
+              Expanded(
+                child: Text(
+                  'Belum ada layanan yang bisa dipesan. Coba muat ulang '
+                  'sebentar lagi.',
+                  style: TextStyle(fontSize: 13.5, color: Warna.teksKedua),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    // Dua layanan saja di beranda; daftar lengkapnya ada di halaman layanan.
+    final List<Layanan> tampil = _layanan.take(2).toList();
+
+    return Column(
+      children: <Widget>[
+        for (final Layanan layanan in tampil)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(Jarak.xl, 0, Jarak.xl, Jarak.md),
+            child: KartuLayanan(
+              layanan: layanan,
+              onTap: () => _bukaDetailLayanan(layanan),
+            ),
+          ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: Jarak.xl),
+          child: SizedBox(
+            width: double.infinity,
+            child: TextButton.icon(
+              onPressed: _lihatLayanan,
+              icon: const Icon(Icons.list_alt_rounded, size: 20),
+              label: Text(
+                _layanan.length > tampil.length
+                    ? 'Lihat semua layanan (${_layanan.length})'
+                    : 'Lihat halaman layanan',
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Future<void> _bukaDetailLayanan(Layanan layanan) async {
+    await Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => DetailLayananScreen(layanan: layanan),
+      ),
+    );
   }
 
   Widget _judulPesananAktif() {
