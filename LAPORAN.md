@@ -426,7 +426,21 @@ data lokalnya lebih dulu.
 | **Branch aktif saat ini** | `feature/mobile` |
 | **Working tree** | bersih (tidak ada perubahan tertunda) |
 | **Sinkron dengan remote** | `0  0` — tidak ada commit tertinggal, tidak ada yang belum ter-push |
-| **Push status** | **Berhasil.** `origin/feature/mobile` = `b95137a` |
+| **Push status** | **Berhasil.** Setiap tahap di-push setelah selesai dan lolos pemeriksaan |
+
+Angka sinkronisasi di atas bisa diperiksa ulang kapan saja dengan:
+
+```bash
+git rev-list --left-right --count origin/feature/mobile...HEAD
+git ls-remote --heads origin feature/mobile
+```
+
+Nilai `0  0` berarti tidak ada commit yang tertinggal di belakang maupun menunggu
+dikirim. Perintah kedua menampilkan hash branch di GitHub.
+
+Hash commit terakhir yang ter-push adalah `436b9a8`, yaitu commit yang menambahkan
+berkas laporan ini. Karena setiap penulisan laporan ikut di-commit, hash terakhir
+akan selalu berubah — periksa dengan perintah di atas bila butuh nilai terkini.
 
 ### Daftar commit
 
@@ -440,8 +454,14 @@ data lokalnya lebih dulu.
 | `d34fd90` | test(mobile): add unit and integration tests |
 | `bc6e068` | feat(mobile): tampilkan daftar layanan di beranda pelanggan |
 | `b95137a` | test(mobile): uji tata letak di berbagai ukuran layar |
+| `436b9a8` | docs(mobile): tambahkan laporan akhir pengerjaan |
 
-Commit dibuat terpisah per tahap pekerjaan, bukan sekaligus di akhir.
+Commit dibuat terpisah per tahap pekerjaan, bukan sekaligus di akhir. Cara
+memeriksa seluruhnya sekaligus:
+
+```bash
+git log --oneline main..feature/mobile
+```
 
 ### Yang TIDAK dilakukan (sesuai instruksi)
 
