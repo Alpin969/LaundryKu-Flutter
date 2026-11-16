@@ -438,9 +438,14 @@ git ls-remote --heads origin feature/mobile
 Nilai `0  0` berarti tidak ada commit yang tertinggal di belakang maupun menunggu
 dikirim. Perintah kedua menampilkan hash branch di GitHub.
 
-Hash commit terakhir yang ter-push adalah `436b9a8`, yaitu commit yang menambahkan
-berkas laporan ini. Karena setiap penulisan laporan ikut di-commit, hash terakhir
-akan selalu berubah — periksa dengan perintah di atas bila butuh nilai terkini.
+Commit di atas adalah tahap-tahap pekerjaan aplikasinya. Delapan commit pertama
+(`3493797` sampai `b95137a`) berisi kode aplikasi dan pengujiannya, dan `436b9a8`
+menambahkan berkas laporan ini. Commit sesudahnya hanya berisi perbaikan pada
+laporan ini sendiri, bukan perubahan kode aplikasi.
+
+Hash terakhir pada branch sengaja tidak dicantumkan di sini: setiap kali laporan
+ini diperbarui dan di-commit, hash terakhir ikut berubah sehingga nilai yang
+ditulis akan langsung basi. Periksa nilai terkini dengan perintah di atas.
 
 ### Daftar commit
 
