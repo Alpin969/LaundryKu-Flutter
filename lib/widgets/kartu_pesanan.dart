@@ -43,7 +43,16 @@ class KartuPesanan extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
-                        Row(
+                        // Lencana status bisa lebih lebar daripada sisa ruang
+                        // di layar sempit (mis. "Menunggu Konfirmasi"), jadi
+                        // susunannya memakai Wrap: bila keduanya tidak muat
+                        // bersebelahan, lencana turun ke baris berikutnya
+                        // alih-alih terpotong.
+                        Wrap(
+                          alignment: WrapAlignment.spaceBetween,
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          spacing: Jarak.sm,
+                          runSpacing: Jarak.xs,
                           children: <Widget>[
                             Text(
                               'Pesanan #${pesanan.id}',
@@ -53,7 +62,6 @@ class KartuPesanan extends StatelessWidget {
                                 color: Warna.teksKedua,
                               ),
                             ),
-                            const Spacer(),
                             LencanaStatus(
                               status: pesanan.status,
                               ringkas: true,

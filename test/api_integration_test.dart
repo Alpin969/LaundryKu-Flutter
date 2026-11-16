@@ -8,6 +8,7 @@
 // Jalankan dengan:
 //
 //   flutter test test/api_integration_test.dart \
+//     --dart-define=UJI_API=true \
 //     --dart-define=API_BASE_URL=http://localhost:3000 \
 //     --dart-define=ADMIN_EMAIL=<email admin> \
 //     --dart-define=ADMIN_PASSWORD=<kata sandi admin>
@@ -15,8 +16,9 @@
 // Bagian khusus admin dilewati bila ADMIN_EMAIL tidak diisi, sehingga berkas
 // ini tetap berguna untuk memeriksa bagian pelanggan saja.
 //
-// Berkas ini sengaja TIDAK ikut berjalan pada `flutter test` biasa, karena
-// mesin tanpa backend akan selalu gagal. Sebut berkasnya seperti di atas.
+// Tanpa --dart-define=UJI_API=true, berkas ini hanya melaporkan satu pengujian
+// yang dilewati dan tidak memanggil backend sama sekali. Dengan begitu
+// `flutter test` biasa tetap hijau di mesin yang tidak menjalankan backend.
 //
 // AKUN: satu pelanggan uji dan satu admin uji dibuat sekali di awal, lalu
 // tokennya dipakai ulang oleh seluruh grup. Ini disengaja: backend membatasi
@@ -47,6 +49,13 @@ import 'package:laundryku/services/pesanan_service.dart';
 
 const String _adminEmail = String.fromEnvironment('ADMIN_EMAIL');
 const String _adminPassword = String.fromEnvironment('ADMIN_PASSWORD');
+
+/// Penanda bahwa pengujian integrasi memang diminta berjalan.
+///
+/// Diisi lewat `--dart-define=UJI_API=true`. Tanpa penanda ini, seluruh berkas
+/// dilewati supaya `flutter test` biasa tidak gagal hanya karena backend tidak
+/// sedang berjalan di mesin yang memakainya.
+const bool _ujiApiDiaktifkan = bool.fromEnvironment('UJI_API');
 
 bool get _adaAdmin => _adminEmail.isNotEmpty && _adminPassword.isNotEmpty;
 Object? get _lewatiAdmin =>
@@ -98,6 +107,17 @@ Future<ApiException> _harusGagal(Future<void> Function() aksi) async {
 }
 
 void main() {
+  if (!_ujiApiDiaktifkan) {
+    test(
+      'Uji integrasi API',
+      () {},
+      skip:
+          'Butuh backend berjalan. Jalankan berkas ini dengan '
+          '--dart-define=UJI_API=true, alamat API, dan akun admin.',
+    );
+    return;
+  }
+
   setUpAll(() async {
     // Alamat API ditampilkan sekali supaya kesalahan konfigurasi langsung
     // terlihat pada keluaran pengujian.
