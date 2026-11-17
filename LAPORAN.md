@@ -6,7 +6,7 @@ Aplikasi mobile LaundryKu untuk pemesanan dan manajemen laundry skala kecil.
 - **Branch:** `feature/mobile`
 - **Remote:** `https://github.com/Alpin969/LaundryKu-Flutter.git`
 - **Tanggal:** 17 November 2026
-- **Status:** seluruh tahap selesai, bekerja, dan sudah ter-push
+- **Status:** seluruh tahap selesai, sudah dipakai menguji, dan sudah ter-push
 
 ---
 
@@ -24,7 +24,7 @@ Register hanya membuat akun **CUSTOMER**. Form tidak punya pilihan role, dan rol
 tidak ikut dikirim ke backend. Ada pengujian yang membuktikan permintaan
 `role: "ADMIN"` dari aplikasi tetap diabaikan backend.
 
-### 2. Pelanggan — 9 halaman (`lib/screens/customer/`)
+### 2. Pelanggan — 10 halaman (`lib/screens/customer/`)
 
 | Halaman | Berkas | Isi |
 |---|---|---|
@@ -36,7 +36,8 @@ tidak ikut dikirim ke backend. Ada pengujian yang membuktikan permintaan
 | Daftar Pesanan | `daftar_pesanan_screen.dart` | Pesanan aktif dan selesai dengan penyaring status |
 | Detail Pesanan | `detail_pesanan_screen.dart` | ID, layanan, berat perkiraan, berat aktual, harga per kg, total biaya, status, foto pakaian |
 | Riwayat | `riwayat_screen.dart` | Pesanan sebelumnya, dikelompokkan per bulan |
-| Profil | `profil_screen.dart` | Nama, email, role, logout dengan konfirmasi |
+| Profil | `profil_screen.dart` | Nama, email, role, ubah profil, logout dengan konfirmasi |
+| Ubah Profil | `ubah_profil_screen.dart` | Ganti nama, dan ganti kata sandi dengan kata sandi lama sebagai syarat |
 
 Navigasi bawah pelanggan: **Beranda, Pesanan, Riwayat, Profil**.
 
@@ -64,6 +65,8 @@ shell terpisah (`ShellPelanggan` dan `ShellAdmin` di
 
 ### Autentikasi dan sesi
 - Login untuk ADMIN dan CUSTOMER, register khusus CUSTOMER
+- Setelah masuk maupun mendaftar, pengguna langsung dibawa ke halaman sesuai
+  rolenya; halaman daftar menutup dirinya sendiri supaya tidak menutupi beranda
 - Token JWT disimpan dengan `flutter_secure_storage`
 - Token dikirim sebagai `Authorization: Bearer <token>` pada endpoint privat
 - Profil diambil lewat `GET /api/auth/me`, bukan dari data lokal
@@ -79,11 +82,14 @@ pada setiap permintaan.
 ### Pemesanan
 - Buat pesanan dengan memilih layanan dan berat perkiraan
 - Upload foto pakaian (opsional) lewat kamera atau galeri, dengan pratinjau,
-  ganti foto, dan hapus foto
+  ganti foto, dan hapus foto — termasuk foto yang sudah tersimpan di backend,
+  sehingga berkasnya benar-benar dibuang dari penyimpanan
 - Harga TIDAK pernah dihitung atau dikirim dari aplikasi; backend mengambil harga
   dari tabel `services` di dalam satu pernyataan SQL
 - Batalkan pesanan sesuai aturan backend (hanya status yang masih boleh dibatalkan)
 - Riwayat pesanan yang dikelompokkan per bulan
+- Ubah profil: ganti nama, dan ganti kata sandi dengan kata sandi lama sebagai
+  syarat — tersedia untuk pelanggan maupun admin
 
 ### Admin
 - CRUD layanan lengkap dengan dialog konfirmasi sebelum menghapus
@@ -96,7 +102,8 @@ pada setiap permintaan.
 ### Penanganan kesalahan dan keadaan antarmuka
 - Setiap halaman punya keadaan **memuat**, **gagal**, dan **kosong**
 - Pesan kegagalan menyebutkan sebab dan langkah berikutnya
-- Kegagalan koneksi menyebutkan alamat API yang sedang dipakai
+- Kegagalan koneksi menjelaskan sebabnya dengan bahasa yang bisa dipahami
+  pengguna, tanpa istilah teknis seperti alamat API atau server
 - Ukuran foto (2 MB) dan tipe berkas diperiksa di aplikasi sebelum dikirim, supaya
   pengguna tidak menunggu unggahan yang pasti gagal
 
@@ -106,7 +113,7 @@ pada setiap permintaan.
 
 ```text
 LaundryKu_flutter/
-├── lib/                              41 berkas, 8.918 baris
+├── lib/                              42 berkas, 9.344 baris
 │   ├── main.dart                     gerbang sesi + routing berdasarkan role
 │   ├── config/
 │   │   ├── api_config.dart           alamat API terpusat (--dart-define)
@@ -123,17 +130,18 @@ LaundryKu_flutter/
 │   │   └── pesanan_service.dart
 │   ├── screens/
 │   │   ├── auth/                     splash, login, register            (3)
-│   │   ├── customer/                 beranda sampai profil              (9)
+│   │   ├── customer/                 beranda sampai ubah profil        (10)
 │   │   ├── admin/                    dashboard sampai ubah status       (5)
 │   │   └── shells/                   shell_pelanggan.dart              (1)
 │   ├── widgets/                      10 widget bersama
 │   └── utils/
 │       ├── format.dart               tanggal, rupiah, berat
 │       └── validasi.dart             validasi form
-├── test/                             3 berkas, 1.541 baris
+├── test/                             4 berkas, 1.928 baris
 │   ├── logika_test.dart              19 pengujian
-│   ├── api_integration_test.dart     48 pengujian (butuh backend)
-│   └── tata_letak_test.dart          42 pengujian
+│   ├── alur_masuk_test.dart          2 pengujian (masuk dan daftar sampai beranda)
+│   ├── api_integration_test.dart     56 pengujian (butuh backend)
+│   └── tata_letak_test.dart          46 pengujian
 ├── assets/fonts/                     Poppins Regular/Medium/SemiBold/Bold
 ├── android/  ios/  web/
 ├── pubspec.yaml
@@ -184,27 +192,34 @@ yang menangani token, status HTTP, dan kegagalan koneksi.
 
 | Endpoint | Method | Berkas dan baris |
 |---|---|---|
-| `/api/auth/register` | POST | `auth_service.dart:134` |
-| `/api/auth/login` | POST | `auth_service.dart:105` |
+| `/api/auth/register` | POST | `auth_service.dart:133` |
+| `/api/auth/login` | POST | `auth_service.dart:104` |
 | `/api/auth/me` | GET | `auth_service.dart:75, 170, 194` |
-| `/api/services` | GET | `layanan_service.dart:18` |
+| `/api/auth/me` | PATCH | `auth_service.dart:219` |
+| `/api/services` | GET | `layanan_service.dart:17` |
 | `/api/services/:id` | GET | `layanan_service.dart:26` |
-| `/api/services` | POST | `layanan_service.dart:32` |
-| `/api/services/:id` | PUT | `layanan_service.dart:40` |
-| `/api/services/:id` | DELETE | `layanan_service.dart:53` |
+| `/api/services` | POST | `layanan_service.dart:31` |
+| `/api/services/:id` | PUT | `layanan_service.dart:39` |
+| `/api/services/:id` | DELETE | `layanan_service.dart:52` |
 | `/api/orders` | GET | `pesanan_service.dart:41` |
 | `/api/orders` | POST | `pesanan_service.dart:100` |
-| `/api/orders/:id` | GET | `pesanan_service.dart:81` |
-| `/api/orders/:id/batal` | PATCH | `pesanan_service.dart:127` |
+| `/api/orders/:id` | GET | `pesanan_service.dart:82` |
+| `/api/orders/:id/batal` | PATCH | `pesanan_service.dart:128` |
 | `/api/orders/:id/foto` | PATCH | `pesanan_service.dart:163` |
-| `/api/orders/:id/status` | PATCH | `pesanan_service.dart:217` |
-| `/api/orders/:id/berat-asli` | PATCH | `pesanan_service.dart:234` |
+| `/api/orders/:id/foto` | DELETE | `pesanan_service.dart:179` |
+| `/api/orders/:id/status` | PATCH | `pesanan_service.dart:230` |
+| `/api/orders/:id/berat-asli` | PATCH | `pesanan_service.dart:247` |
 
 Upload foto memakai `multipart/form-data` dengan nama field **`photo`**, sesuai
 yang diminta backend.
 
+Dua endpoint terakhir bertanda PATCH `/api/auth/me` dan DELETE
+`/api/orders/:id/foto` ditambahkan di backend atas permintaan pemilik proyek,
+karena tanpa keduanya tombol hapus foto dan halaman ubah profil tidak bisa
+benar-benar bekerja. Rinciannya ada di bagian H.
+
 Yang **tidak** dilakukan aplikasi, sesuai batasan: tidak mengakses PostgreSQL
-langsung, tidak membuat endpoint baru, dan tidak mengirim harga.
+langsung, tidak membuat endpoint sendiri, dan tidak mengirim harga.
 
 ### Konfigurasi alamat API
 
@@ -231,10 +246,11 @@ Pemeriksaan sudah dijalankan terhadap seluruh berkas yang ter-track Git.
 ```text
 $ flutter analyze
 Analyzing LaundryKu_flutter...
-No issues found! (ran in 5.2s)
+No issues found! (ran in 5.1s)
 ```
 
-Dijalankan pada kondisi working tree bersih, sesuai commit terakhir yang ter-push.
+Dijalankan berkali-kali sepanjang pengerjaan, termasuk sekali lagi setelah
+seluruh penyempurnaan tahap akhir selesai. Hasilnya tetap tanpa temuan.
 
 ---
 
@@ -243,21 +259,29 @@ Dijalankan pada kondisi working tree bersih, sesuai commit terakhir yang ter-pus
 Semua hasil di bawah ini adalah keluaran sungguhan dari perintah yang dijalankan,
 bukan perkiraan.
 
-### 1. Pengujian unit tanpa backend
+### 1. Pengujian tanpa backend
 
 ```text
 $ flutter test
-00:12 +61 ~1: All tests passed!
+00:12 +67 ~1: All tests passed!
 ```
 
-61 lulus, 1 dilewati. Yang dilewati adalah berkas uji integrasi API, yang
+67 lulus, 1 dilewati. Yang dilewati adalah berkas uji integrasi API, yang
 melewatkan dirinya sendiri karena backend tidak dijalankan pada perintah itu.
 
 | Berkas | Jumlah | Cakupan |
 |---|---|---|
 | `test/logika_test.dart` | 19 lulus | Angka NUMERIC yang datang sebagai teks, transisi status, validasi form, format rupiah/tanggal/berat |
-| `test/tata_letak_test.dart` | 42 lulus | Tata letak empat ukuran layar |
+| `test/alur_masuk_test.dart` | 2 lulus | Masuk dan daftar sampai benar-benar tiba di beranda pelanggan |
+| `test/tata_letak_test.dart` | 46 lulus | Tata letak empat ukuran layar |
 | `test/api_integration_test.dart` | dilewati | Butuh backend berjalan |
+
+`test/alur_masuk_test.dart` dibuat khusus untuk masalah yang dilaporkan
+pemilik proyek: setelah daftar, pengguna tidak langsung masuk ke dashboard.
+Pengujian ini menjalankan aplikasi sungguhan (gerbang sesi ikut diuji),
+menekan tombol Daftar, lalu menuntut halaman daftar sudah tertutup dan beranda
+pelanggan yang tampil. Backend tidak diperlukan karena seluruh permintaan
+dilayani klien HTTP buatan yang dipasang lewat `ApiClient.klienUji`.
 
 ### 2. Pengujian tata letak berbagai ukuran layar
 
@@ -280,14 +304,15 @@ $ flutter test test/api_integration_test.dart \
     --dart-define=ADMIN_EMAIL=<email admin> \
     --dart-define=ADMIN_PASSWORD=<kata sandi admin>
 
-00:13 +48: All tests passed!
+00:19 +56: All tests passed!
 ```
 
-48 pengujian meliputi: kesehatan API dan database, registrasi dan login, bahwa
+56 pengujian meliputi: kesehatan API dan database, registrasi dan login, bahwa
 role tidak bisa ditentukan dari aplikasi, pengambilan profil lewat `/api/auth/me`,
-penolakan token palsu dan token kedaluwarsa, CRUD layanan, pembuatan pesanan,
-upload foto, perubahan berat, perubahan status termasuk penolakan transisi yang
-tidak sah, pembatalan pesanan, dan logout.
+penolakan token palsu dan token kedaluwarsa, CRUD layanan (termasuk penolakan
+menghapus layanan yang masih dipakai pesanan), pembuatan pesanan, upload foto,
+**hapus foto pesanan**, **ubah profil akun**, perubahan berat, perubahan status
+termasuk penolakan transisi yang tidak sah, pembatalan pesanan, dan logout.
 
 ### 4. Daftar periksa pengujian dari instruksi
 
@@ -330,9 +355,18 @@ yang berbeda. Penyebabnya susunan `Row` dengan `Spacer` di `lib/widgets/kartu_pe
 
 Perbaikannya: susunan diganti `Wrap`, sehingga lencana turun ke baris berikutnya
 bila tidak muat bersebelahan — bukan terpotong dan bukan dipotong dengan elipsis.
-Sesudah perbaikan, seluruh 42 pengujian tata letak lulus, dan galeri komponen
+Sesudah perbaikan, seluruh pengujian tata letak lulus, dan galeri komponen
 memperlihatkan lencana "Menunggu Konfirmasi" memang turun ke baris kedua pada
 kartu yang sempit.
+
+Cacat kedua ditemukan lewat laporan pemilik proyek, bukan lewat pengujian:
+**setelah mendaftar, pengguna tidak langsung masuk ke dashboard.** Ternyata
+halaman daftar dibuka dengan `Navigator.push` di atas halaman login, sedangkan
+gerbang sesi hanya mengganti rute pertama. Formulir pendaftaran karena itu tetap
+menutupi beranda. Perbaikannya: halaman daftar menutup dirinya sendiri
+(`popUntil` ke rute pertama) memakai `Navigator` yang ditangkap sebelum
+permintaan dikirim. Pengujian `test/alur_masuk_test.dart` ditambahkan supaya
+masalah ini tidak kembali diam-diam.
 
 ---
 
@@ -351,10 +385,9 @@ jalannya pengujian, lalu memakai ulang tokennya. Pengujian juga dijalankan pada
 instance backend tersendiri di port 3001, tanpa mengganggu server yang sedang
 berjalan di port 3000.
 
-### 2. Cacat backend — dilaporkan, tidak diperbaiki
+### 2. Cacat backend kode `23001` — sudah diperbaiki
 
-Sesuai batasan pekerjaan (fokus hanya pada Flutter), cacat ini **dilaporkan dan
-tidak diubah**:
+Ditemukan saat pengujian CRUD layanan:
 
 ```text
 DELETE /api/services/:id   (layanan yang sudah dipakai pesanan)
@@ -363,15 +396,23 @@ DELETE /api/services/:id   (layanan yang sudah dipakai pesanan)
   seharusnya HTTP 409 dengan kode SERVICE_IN_USE
 ```
 
-Penyebab: `backend/src/controllers/services.controller.js:161` hanya memeriksa
+Penyebab: `backend/src/controllers/services.controller.js:151` hanya memeriksa
 `error.code === '23503'`, sedangkan PostgreSQL mengirim kode **`23001`**
 (`restrict_violation`) untuk pelanggaran `ON DELETE RESTRICT`. Selain itu
-`backend/src/utils/pgError.js` tidak memetakan kode `23001`, dan kode mentah
+`backend/src/utils/pgError.js` tidak memetakan kode `23001`, sehingga kode mentah
 PostgreSQL ikut bocor pada field `error`.
 
-Akibat di sisi aplikasi: admin yang mencoba menghapus layanan yang masih dipakai
-menerima pesan kegagalan server yang tidak menjelaskan sebab sebenarnya. Aplikasi
-sudah menampilkan pesan apa adanya dari backend, tetapi akar masalahnya ada di backend.
+Pada awalnya cacat ini hanya dilaporkan karena lingkup pekerjaan dibatasi pada
+Flutter. Setelah pemilik proyek memberi izin menyentuh backend, cacat ini
+**diperbaiki**:
+
+- `backend/src/utils/pgError.js` memetakan `23001` menjadi HTTP 409
+  (`DATA_IN_USE`), dan kode mentah PostgreSQL tidak lagi ikut terkirim.
+- `backend/src/controllers/services.controller.js` memeriksa **kedua** kode
+  (23503 dan 23001) dan menjawab `SERVICE_IN_USE`.
+
+Sekarang admin yang mencoba menghapus layanan yang masih dipakai menerima
+penjelasan yang bisa dimengerti, bukan kegagalan server tanpa sebab.
 
 ### 3. Respons `POST /api/orders` tidak lengkap
 
@@ -391,19 +432,38 @@ adalah `2 * 1024 * 1024` byte, dan tipe yang diterima hanya JPEG, PNG, dan WebP.
 Aplikasi mengikuti batas backend yang sebenarnya, dan memeriksanya lebih dulu di
 sisi aplikasi sebelum berkas dikirim.
 
-### 5. Tidak ada endpoint hapus foto di backend
+### 5. Tombol hapus foto dan halaman ubah profil butuh endpoint baru
 
-Backend hanya menyediakan `PATCH /api/orders/:id/foto` untuk mengunggah foto,
-tanpa endpoint untuk menghapusnya. Karena itu tombol hapus di aplikasi hanya
-berlaku untuk foto yang **belum terkirim**; foto yang sudah tersimpan di server
-tidak bisa dihapus dari aplikasi.
+Backend awalnya hanya menyediakan `PATCH /api/orders/:id/foto` untuk mengunggah
+foto, tanpa cara menghapusnya. Akibatnya tombol hapus di aplikasi hanya berlaku
+untuk foto yang **belum terkirim**, dan tidak ada cara mengganti nama atau kata
+sandi akun dari aplikasi.
+
+Kedua fitur itu tidak bisa dikerjakan hanya dari sisi Flutter — tidak ada
+endpoint yang bisa dipanggil. Karena itu pemilik proyek memberi izin untuk
+menambahkan endpoint di backend, dan dua endpoint berikut dibuat mengikuti gaya
+yang sudah ada:
+
+| Endpoint | Method | Keterangan |
+|---|---|---|
+| `/api/auth/me` | PATCH | Ganti nama, dan ganti kata sandi dengan kata sandi lama sebagai syarat |
+| `/api/orders/:id/foto` | DELETE | Hapus foto pesanan; berkasnya ikut dibuang dari penyimpanan |
+
+Keduanya memakai aturan yang sama dengan endpoint sejenis: `PATCH /api/auth/me`
+hanya boleh mengubah akun pemilik token sendiri, dan `DELETE /api/orders/:id/foto`
+boleh dilakukan pemilik pesanan maupun admin. Setelah foto dihapus, pelanggan
+tetap bisa mengunggah foto baru.
+
+Perubahan backend ini disimpan sebagai commit tersendiri di repository backend,
+terpisah dari repository Flutter ini.
 
 ### 6. "Layanan populer" tidak bisa dibuat
 
 Instruksi menyebut "Layanan populer" di beranda, tetapi backend tidak menyediakan
 data layanan terpopuler. Beranda menampilkan daftar layanan **tanpa** mengaku
 sebagai peringkat: judulnya "Layanan Laundry" dengan keterangan bahwa harga dan
-estimasi berasal dari server. Tidak ada angka karangan yang dibuat-buat.
+estimasi pengerjaan yang ditampilkan adalah yang berlaku di LaundryKu. Tidak ada
+angka karangan yang dibuat-buat.
 
 ### 7. Perbedaan font antara pengujian dan tampilan nyata
 
@@ -413,6 +473,23 @@ dan 128 px yang **tidak nyata** — pada akhirnya yang benar adalah 39 px dan 27
 Pelajaran yang dipakai: font asli dimuat di dalam berkas uji sebelum tata letak
 diukur, dan setiap widget yang memformat angka `id_ID` harus menginisialisasi
 data lokalnya lebih dulu.
+
+Pelajaran yang sama muncul lagi saat menguji alur masuk: dengan font bawaan,
+halaman login melaporkan luapan 82 px yang tidak ada di perangkat. Setelah font
+Poppins asli dimuat, laporan itu hilang.
+
+### 8. Penyimpanan aman tidak punya sisi platform di dalam pengujian widget
+
+Pengujian alur masuk mula-mula gagal dengan gejala yang membingungkan: permintaan
+login berhasil, tetapi halaman tidak berpindah. Setelah ditelusuri, alur berhenti
+tepat di langkah menyimpan token — `flutter_secure_storage` tidak punya
+implementasi platform di dalam pengujian widget, sehingga pemanggilan kanalnya
+tidak pernah selesai. Di aplikasi sungguhan hal ini tidak terjadi.
+
+**Penanganan:** pengujian memakai pengganti resmi dari plugin
+(`FlutterSecureStorage.setMockInitialValues`), sehingga penyimpanan token berjalan
+seperti biasa di dalam pengujian. Pelajarannya: kegagalan di dalam pengujian
+belum tentu cacat aplikasi, dan harus ditelusuri sampai ketemu sebelum diperbaiki.
 
 ---
 
@@ -440,8 +517,9 @@ dikirim. Perintah kedua menampilkan hash branch di GitHub.
 
 Commit di atas adalah tahap-tahap pekerjaan aplikasinya. Delapan commit pertama
 (`3493797` sampai `b95137a`) berisi kode aplikasi dan pengujiannya, dan `436b9a8`
-menambahkan berkas laporan ini. Commit sesudahnya hanya berisi perbaikan pada
-laporan ini sendiri, bukan perubahan kode aplikasi.
+menambahkan berkas laporan ini. Commit sesudahnya berisi penyempurnaan akhir
+aplikasi: alur masuk yang salah, teks teknis yang dihapus dari layar pengguna,
+serta hapus foto dan ubah profil yang disambungkan ke backend.
 
 Hash terakhir pada branch sengaja tidak dicantumkan di sini: setiap kali laporan
 ini diperbarui dan di-commit, hash terakhir ikut berubah sehingga nilai yang
@@ -475,8 +553,30 @@ git log --oneline main..feature/mobile
 - Tidak memakai `git reset --hard`
 - Tidak memakai force checkout maupun force push
 - Tidak merge otomatis ke `main`
-- Tidak menyentuh branch atau repository backend
+- Tidak mengubah atau memakai branch backend milik repository backend
 - Tidak melakukan deployment
+
+### Perubahan pada repository backend
+
+Perubahan backend yang disebut di bagian H adalah pekerjaan di **repository
+terpisah** (`LaundryKu`), dan sengaja tidak dicampur ke repository Flutter ini.
+Yang diubah hanya enam berkas di `backend/src/`, ditambah **dua endpoint baru**:
+
+| Berkas | Perubahan |
+|---|---|
+| `src/utils/pgError.js` | Kode `23001` dipetakan menjadi HTTP 409 (`DATA_IN_USE`) |
+| `src/controllers/services.controller.js` | Hapus layanan yang masih dipakai menjawab `SERVICE_IN_USE`, bukan 500 |
+| `src/controllers/auth.controller.js` | Handler `ubahProfil` (PATCH `/api/auth/me`) |
+| `src/routes/auth.routes.js` | Rute PATCH `/me` |
+| `src/controllers/orders.controller.js` | Handler `hapusFoto` (DELETE `/api/orders/:id/foto`) |
+| `src/routes/orders.routes.js` | Rute DELETE `/:id/foto` |
+
+Branch backend dibiarkan apa adanya: tidak ada `git reset`, tidak ada force
+push, dan tidak ada branch backend yang diubah. Perubahan itu disimpan sebagai
+commit tersendiri di sana, terpisah dari seluruh commit di repository ini.
+
+Aplikasi Flutter tetap tidak menyimpan kredensial apa pun. Kedua endpoint baru
+dipanggil lewat `Authorization: Bearer <token>` seperti endpoint lainnya.
 
 ### Pemeriksaan berkas rahasia
 
@@ -502,28 +602,27 @@ pernah ikut ter-commit.
    dijalankan di perangkat maupun emulator. Verifikasi tampilan dilakukan lewat
    build web.
 
-3. **Cacat backend kode `23001` belum diperbaiki.**
-   Di luar lingkup pekerjaan ini (hanya Flutter). Rincian ada di bagian H.2.
-
-4. **Data uji masih tertinggal di database bersama.**
+3. **Data uji masih tertinggal di database bersama.**
    Akun `uji-mobile-*@laundryku.test` dan `uji-galeri-*@laundryku.test`, layanan
    berawalan `[UJI MOBILE]`, beberapa pesanan uji, dan foto di `backend/uploads`.
    Belum dibersihkan. Semua diberi awalan yang jelas supaya mudah dikenali.
 
-5. **Tombol hapus foto belum bisa menghapus foto yang sudah tersimpan.**
-   Terhalang tidak adanya endpoint di backend (bagian H.5).
-
-6. **"Layanan populer" belum ada** karena backend tidak menyediakan datanya
+4. **"Layanan populer" belum ada** karena backend tidak menyediakan datanya
    (bagian H.6).
 
-7. **Layar selain halaman login dan galeri komponen belum dilihat langsung
-   dalam keadaan login.**
-   Yang sudah dilihat dengan mata sendiri: halaman login pada 320 px dan galeri
-   komponen dengan data API sungguhan. Layar lainnya diverifikasi lewat
-   pengujian tata letak otomatis, bukan lewat gambar. Disebutkan di sini supaya
-   tidak terbaca sebagai sudah diperiksa secara visual.
+5. **Keterangan catatan tambahan pada pesanan belum ada.**
+   Formulir pemesanan tidak menyediakan kolom catatan karena tabel `orders` di
+   database tidak punya kolomnya, dan instruksi melarang mengubah database.
+   Menambahkannya butuh kolom baru di backend.
 
-8. **Belum ada deployment** — sesuai batasan pekerjaan pada tahap ini.
+6. **Layar dalam keadaan login belum semuanya diperiksa dengan mata sendiri.**
+   Yang sudah dilihat langsung: halaman masuk, alur masuk sampai beranda, dan
+   galeri komponen dengan data API sungguhan. Layar lainnya diverifikasi lewat
+   pengujian tata letak otomatis pada empat ukuran layar dan pengujian alur,
+   bukan lewat gambar. Disebutkan di sini supaya tidak terbaca sebagai sudah
+   diperiksa secara visual.
+
+7. **Belum ada deployment** — sesuai batasan pekerjaan pada tahap ini.
 
 ---
 
