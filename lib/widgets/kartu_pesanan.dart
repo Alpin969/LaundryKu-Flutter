@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../config/app_theme.dart';
+import '../models/metode_pembayaran.dart';
 import '../models/pesanan.dart';
 import '../utils/format.dart';
 import 'lencana_status.dart';
@@ -135,6 +136,18 @@ class KartuPesanan extends StatelessWidget {
                     ),
                   ),
                   const Spacer(),
+
+                  // Penanda ini membantu admin mengenali pesanan tunai yang
+                  // uangnya belum diterima, langsung dari daftar.
+                  if (pesanan.statusPembayaran ==
+                      StatusPembayaran.belumDibayar) ...<Widget>[
+                    const Text(
+                      'Belum dibayar',
+                      style: TextStyle(fontSize: 12, color: Warna.peringatan),
+                    ),
+                    if (pesanan.adaFoto) const SizedBox(width: Jarak.md),
+                  ],
+
                   if (pesanan.adaFoto) ...<Widget>[
                     const Text(
                       'Ada foto',

@@ -12,20 +12,20 @@ import 'ubah_profil_screen.dart';
 ///
 /// Isinya data akun dari `GET /api/auth/me`, tombol ubah data akun, dan
 /// tombol keluar.
+///
+/// [muatUlang] dipanggil penyegar otomatis di kerangka navigasi; halaman ini
+/// tidak lagi punya tombol muat ulang sendiri.
 class ProfilScreen extends StatefulWidget {
   const ProfilScreen({super.key});
 
   @override
-  State<ProfilScreen> createState() => _ProfilScreenState();
+  State<ProfilScreen> createState() => ProfilScreenState();
 }
 
-class _ProfilScreenState extends State<ProfilScreen> {
-  bool _sedangMuatUlang = false;
-
-  Future<void> _muatUlang() async {
-    setState(() => _sedangMuatUlang = true);
+class ProfilScreenState extends State<ProfilScreen> {
+  Future<void> muatUlang() async {
     await AuthService.instance.segarkanAkun();
-    if (mounted) setState(() => _sedangMuatUlang = false);
+    if (mounted) setState(() {});
   }
 
   Future<void> _bukaUbahProfil() async {
@@ -68,7 +68,7 @@ class _ProfilScreenState extends State<ProfilScreen> {
     final User? pengguna = AuthService.instance.pengguna;
 
     return RefreshIndicator(
-      onRefresh: _muatUlang,
+      onRefresh: muatUlang,
       child: ListView(
         physics: const AlwaysScrollableScrollPhysics(),
         padding: const EdgeInsets.fromLTRB(Jarak.xl, Jarak.lg, Jarak.xl, Jarak.xxl),
@@ -78,17 +78,6 @@ class _ProfilScreenState extends State<ProfilScreen> {
 
           KartuBagian(
             judul: 'Informasi Akun',
-            aksi: IconButton(
-              onPressed: _sedangMuatUlang ? null : _muatUlang,
-              tooltip: 'Muat ulang data akun',
-              icon: _sedangMuatUlang
-                  ? const SizedBox(
-                      width: 18,
-                      height: 18,
-                      child: CircularProgressIndicator(strokeWidth: 2.2),
-                    )
-                  : const Icon(Icons.refresh_rounded, size: 20),
-            ),
             anak: Column(
               children: <Widget>[
                 BarisDetail(

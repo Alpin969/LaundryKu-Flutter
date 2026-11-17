@@ -6,7 +6,7 @@ import '../../services/auth_service.dart';
 import '../../utils/format.dart';
 import 'form_pemesanan_screen.dart';
 
-/// Detail satu layanan, dengan tombol untuk langsung memesan.
+/// Detail satu layanan, dengan tombol untuk menambahkannya ke keranjang.
 class DetailLayananScreen extends StatelessWidget {
   const DetailLayananScreen({super.key, required this.layanan});
 
@@ -140,8 +140,8 @@ class DetailLayananScreen extends StatelessWidget {
             )
           else
             FilledButton(
-              onPressed: () => _pesan(context),
-              child: const Text('Pesan Layanan Ini'),
+              onPressed: () => _tambahKeKeranjang(context),
+              child: const Text('Tambah ke Keranjang'),
             ),
 
           const SizedBox(height: Jarak.lg),
@@ -150,7 +150,7 @@ class DetailLayananScreen extends StatelessWidget {
     );
   }
 
-  void _pesan(BuildContext context) {
+  void _tambahKeKeranjang(BuildContext context) {
     Navigator.of(context).push(
       MaterialPageRoute<void>(
         builder: (_) => FormPemesananScreen(layananAwal: layanan),

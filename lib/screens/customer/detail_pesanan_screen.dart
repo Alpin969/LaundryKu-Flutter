@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../config/app_theme.dart';
+import '../../models/metode_pembayaran.dart';
 import '../../models/pesanan.dart';
 import '../../models/status_pesanan.dart';
 import '../../services/api_client.dart';
@@ -169,8 +170,7 @@ class _DetailPesananScreenState extends State<DetailPesananScreen> {
     if (berubah == true && mounted) await muatUlang();
   }
 
-  Future<void> _bukaUbahStatus() async {
-    final Pesanan? pesanan = _pesanan;
+  Future<void> _bukaUbahStatus() async {    final Pesanan? pesanan = _pesanan;
     if (pesanan == null) return;
 
     final StatusPesanan? tujuan = await showModalBottomSheet<StatusPesanan>(
@@ -190,22 +190,43 @@ class _DetailPesananScreenState extends State<DetailPesananScreen> {
     );
   }
 
+  /// Admin menandai uang tunai sudah diterima.
+  ///
+  /// Metode lain sudah lunas sejak pesanan dibuat, jadi tombol ini hanya
+  /// muncul untuk pesanan tunai yang belum dikonfirmasi.
+  Future<void> _konfirmasiBayar() async {
+    final Pesanan? pesanan = _pesanan;
+    if (pesanan == null) return;
+
+    final bool setuju = await konfirmasi(
+      context,
+      judul: 'Konfirmasi pembayaran?',
+      pesan:
+          'Pesanan #${pesanan.id} akan ditandai sudah dibayar tunai. '
+          'Pastikan uangnya sudah Anda terima.',
+      labelLanjut: 'Ya, Sudah Dibayar',
+    );
+
+    if (!setuju || !mounted) return;
+
+    await _kerjakan(
+      () async => _pesananService.konfirmasiBayar(pesanan.id),
+      pesanSukses: 'Pembayaran pesanan #${pesanan.id} ditandai lunas.',
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      // Tidak ada tombol muat ulang di sini: daftar bisa ditarik ke bawah
+      // untuk menyegarkan, dan penyegaran latar berjalan dari kerangka
+      // navigasi.
       appBar: AppBar(
         title: Text(
           _pesanan == null
               ? 'Detail Pesanan'
               : 'Pesanan #${_pesanan!.id}',
         ),
-        actions: <Widget>[
-          IconButton(
-            onPressed: _memuat ? null : muatUlang,
-            tooltip: 'Muat ulang',
-            icon: const Icon(Icons.refresh_rounded),
-          ),
-        ],
       ),
       body: _isi(),
     );
@@ -242,6 +263,9 @@ class _DetailPesananScreenState extends State<DetailPesananScreen> {
           const SizedBox(height: Jarak.xl),
 
           _bagianPesanan(pesanan),
+          const SizedBox(height: Jarak.xl),
+
+          _bagianPembayaran(pesanan),
           const SizedBox(height: Jarak.xl),
 
           _bagianBiaya(pesanan),
@@ -432,6 +456,80 @@ class _DetailPesananScreenState extends State<DetailPesananScreen> {
     );
   }
 
+  /// Metode dan status pembayaran pesanan.
+  ///
+  /// Pesanan yang dibuat sebelum pencatatan pembayaran aktif tidak punya
+  /// metode maupun status. Keadaannya ditulis apa adanya, bukan ditebak
+  /// sebagai "lunas" atau "belum dibayar".
+  Widget _bagianPembayaran(Pesanan pesanan) {
+    final MetodePembayaran? metode = pesanan.metodePembayaran;
+    final StatusPembayaran? statusBayar = pesanan.statusPembayaran;
+
+    if (metode == null && statusBayar == null) {
+      return KartuBagian(
+        judul: 'Pembayaran',
+        anak: const Text(
+          'Pesanan ini dibuat sebelum aplikasi mencatat metode pembayaran, '
+          'jadi metode dan statusnya tidak tersimpan.',
+          style: TextStyle(
+            fontSize: 12.5,
+            color: Warna.teksKedua,
+            height: 1.55,
+          ),
+        ),
+      );
+    }
+
+    final bool lunas = statusBayar == StatusPembayaran.lunas;
+
+    return KartuBagian(
+      judul: 'Pembayaran',
+      anak: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          BarisDetail(label: 'Metode', nilai: metode?.label ?? 'Tidak dicatat'),
+          const SizedBox(height: Jarak.sm),
+          BarisDetail(
+            label: 'Status',
+            nilai: statusBayar?.label ?? 'Tidak dicatat',
+            tebal: true,
+            warnaLatar: lunas ? Warna.suksesMuda : Warna.peringatanMuda,
+          ),
+          if (pesanan.dibayarPada != null) ...<Widget>[
+            const SizedBox(height: Jarak.sm),
+            BarisDetail(
+              label: 'Waktu dibayar',
+              nilai: formatTanggalLengkap(pesanan.dibayarPada),
+            ),
+          ],
+          const SizedBox(height: Jarak.md),
+          Text(
+            _keteranganPembayaran(metode, lunas),
+            style: const TextStyle(
+              fontSize: 12,
+              color: Warna.teksSamar,
+              height: 1.55,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _keteranganPembayaran(MetodePembayaran? metode, bool lunas) {
+    if (lunas) return 'Pembayaran pesanan ini sudah diterima.';
+
+    if (metode?.perluKonfirmasiAdmin ?? false) {
+      return _admin
+          ? 'Pelanggan memilih bayar tunai. Tekan "Konfirmasi Pembayaran" '
+                'setelah uangnya benar-benar diterima.'
+          : 'Anda memilih bayar tunai. Pembayarannya dikonfirmasi admin saat '
+                'pakaian diambil.';
+    }
+
+    return 'Pembayaran belum tercatat lunas.';
+  }
+
   Widget _bagianPelanggan(Pesanan pesanan) {
     return KartuBagian(
       judul: 'Pelanggan',
@@ -449,18 +547,42 @@ class _DetailPesananScreenState extends State<DetailPesananScreen> {
     final List<Widget> tombol = <Widget>[];
 
     if (_admin) {
-      // Admin: yang paling sering dibutuhkan adalah mengisi berat dan
-      // memindahkan status.
-      if (!pesanan.status.sudahFinal) {
+      // Admin: yang paling sering dibutuhkan adalah mengonfirmasi uang tunai,
+      // mengisi berat, dan memindahkan status.
+      final bool perluKonfirmasiBayar =
+          (pesanan.metodePembayaran?.perluKonfirmasiAdmin ?? false) &&
+          pesanan.statusPembayaran != StatusPembayaran.lunas &&
+          !pesanan.status.sudahFinal;
+
+      if (perluKonfirmasiBayar) {
         tombol.add(
           FilledButton(
-            onPressed: _sedangKerja ? null : _bukaIsiBerat,
-            child: Text(
-              pesanan.beratAktual == null
-                  ? 'Isi Berat Aktual'
-                  : 'Ubah Berat Aktual',
-            ),
+            onPressed: _sedangKerja ? null : _konfirmasiBayar,
+            child: const Text('Konfirmasi Pembayaran'),
           ),
+        );
+      }
+
+      if (!pesanan.status.sudahFinal) {
+        if (tombol.isNotEmpty) tombol.add(const SizedBox(height: Jarak.md));
+        tombol.add(
+          perluKonfirmasiBayar
+              ? OutlinedButton(
+                  onPressed: _sedangKerja ? null : _bukaIsiBerat,
+                  child: Text(
+                    pesanan.beratAktual == null
+                        ? 'Isi Berat Aktual'
+                        : 'Ubah Berat Aktual',
+                  ),
+                )
+              : FilledButton(
+                  onPressed: _sedangKerja ? null : _bukaIsiBerat,
+                  child: Text(
+                    pesanan.beratAktual == null
+                        ? 'Isi Berat Aktual'
+                        : 'Ubah Berat Aktual',
+                  ),
+                ),
         );
       }
 

@@ -4,19 +4,20 @@ import 'package:image_picker/image_picker.dart';
 import '../../config/app_theme.dart';
 import '../../models/layanan.dart';
 import '../../services/api_client.dart';
+import '../../services/keranjang_service.dart';
 import '../../services/layanan_service.dart';
 import '../../utils/format.dart';
 import '../../utils/validasi.dart';
 import '../../widgets/pemilih_foto.dart';
 import '../../widgets/pesan_ui.dart';
 import '../../widgets/tampilan_status.dart';
-import 'konfirmasi_pesanan_screen.dart';
 
-/// Form pembuatan pesanan baru.
+/// Form penyusunan satu item keranjang.
 ///
 /// Urutannya: pilih layanan, isi berat perkiraan, lampirkan foto (opsional),
-/// lalu lanjut ke halaman konfirmasi. Pesanan belum dikirim ke server di
-/// halaman ini.
+/// lalu simpan ke keranjang. Belum ada permintaan apa pun ke backend di
+/// halaman ini; pesanannya dibuat setelah pelanggan menekan "Pesan & Bayar"
+/// di halaman keranjang.
 ///
 /// Catatan tambahan tidak disediakan karena tabel `orders` di backend tidak
 /// punya kolomnya. Menyediakan kolom yang tidak pernah terkirim hanya akan
@@ -94,7 +95,7 @@ class _FormPemesananScreenState extends State<FormPemesananScreen> {
     setState(() => _foto = berkas);
   }
 
-  void _lanjut() {
+  void _simpanKeKeranjang() {
     FocusScope.of(context).unfocus();
 
     if (_layananDipilih == null) {
@@ -111,21 +112,37 @@ class _FormPemesananScreenState extends State<FormPemesananScreen> {
       return;
     }
 
-    Navigator.of(context).push(
-      MaterialPageRoute<void>(
-        builder: (_) => KonfirmasiPesananScreen(
-          layanan: _layananDipilih!,
-          beratPerkiraan: double.parse(_berat.text.trim().replaceAll(',', '.')),
-          foto: _foto,
-        ),
-      ),
+    final Layanan layanan = _layananDipilih!;
+    final double berat = double.parse(
+      _berat.text.trim().replaceAll(',', '.'),
+    );
+
+    KeranjangService.instance.tambah(
+      layanan: layanan,
+      beratPerkiraan: berat,
+      foto: _foto,
+    );
+
+    // Navigator dan ScaffoldMessenger ditangkap sebelum halaman ditutup:
+    // setelah pop, context milik halaman ini tidak berlaku lagi untuk
+    // menampilkan pesan.
+    final NavigatorState navigator = Navigator.of(context);
+    final ScaffoldMessengerState messenger = ScaffoldMessenger.of(context);
+    final int jumlah = KeranjangService.instance.jumlah;
+
+    navigator.pop();
+    tampilkanPesanLewat(
+      messenger,
+      '$berat kg ${layanan.nama} masuk keranjang. '
+      '$jumlah layanan menunggu dibayar.',
+      jenis: JenisPesan.sukses,
     );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Pesan Laundry')),
+      appBar: AppBar(title: const Text('Tambah ke Keranjang')),
       body: _memuatLayanan
           ? const TampilanMemuat(keterangan: 'Memuat daftar layanan...')
           : _galatLayanan != null
@@ -249,8 +266,10 @@ class _FormPemesananScreenState extends State<FormPemesananScreen> {
                   const SizedBox(height: Jarak.xl),
 
                   FilledButton(
-                    onPressed: _daftarLayanan.isEmpty ? null : _lanjut,
-                    child: const Text('Lanjut ke Konfirmasi'),
+                    onPressed: _daftarLayanan.isEmpty
+                        ? null
+                        : _simpanKeKeranjang,
+                    child: const Text('Simpan ke Keranjang'),
                   ),
 
                   const SizedBox(height: Jarak.lg),

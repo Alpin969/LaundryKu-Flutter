@@ -1,5 +1,6 @@
 import '../config/api_config.dart';
 import '../utils/format.dart';
+import 'metode_pembayaran.dart';
 import 'status_pesanan.dart';
 
 /// Pesanan laundry.
@@ -9,10 +10,14 @@ import 'status_pesanan.dart';
 /// dua kali:
 /// `{ id, user_id, customer_name, customer_email, service_id, service_name,
 ///    service_duration, estimated_weight, actual_weight, price_per_kg,
-///    total_price, status, photo_url, created_at }`
+///    total_price, status, photo_url, payment_method, payment_status, paid_at,
+///    created_at }`
 ///
 /// `actual_weight` dan `total_price` bernilai null selama admin belum mengisi
 /// berat asli, karena harga akhir memang belum diketahui saat itu.
+///
+/// Ketiga kolom pembayaran juga boleh null: pesanan yang dibuat sebelum
+/// pembayaran dicatat tidak punya metodenya.
 class Pesanan {
   const Pesanan({
     required this.id,
@@ -29,6 +34,9 @@ class Pesanan {
     required this.status,
     required this.photoUrl,
     required this.dibuatPada,
+    this.metodePembayaran,
+    this.statusPembayaran,
+    this.dibayarPada,
   });
 
   final int id;
@@ -53,6 +61,17 @@ class Pesanan {
   final String? photoUrl;
 
   final DateTime? dibuatPada;
+
+  /// Metode pembayaran yang dipilih pelanggan saat memesan.
+  ///
+  /// Null untuk pesanan yang dibuat sebelum aplikasi mencatat pembayaran.
+  final MetodePembayaran? metodePembayaran;
+
+  /// Status pembayaran menurut backend, bukan hitungan aplikasi.
+  final StatusPembayaran? statusPembayaran;
+
+  /// Waktu pembayaran diterima, diisi backend saat pesanannya menjadi lunas.
+  final DateTime? dibayarPada;
 
   bool get adaFoto => photoUrl != null && photoUrl!.isNotEmpty;
 
@@ -81,6 +100,18 @@ class Pesanan {
       status: StatusPesanan.dariKode(json['status'] as String?),
       photoUrl: (foto == null || foto.trim().isEmpty) ? null : foto.trim(),
       dibuatPada: dibuat == null ? null : DateTime.tryParse(dibuat),
+      metodePembayaran: MetodePembayaran.dariKode(
+        json['payment_method'] as String?,
+      ),
+      statusPembayaran: StatusPembayaran.dariKode(
+        json['payment_status'] as String?,
+      ),
+      dibayarPada: _waktuDariJson(json['paid_at']),
     );
+  }
+
+  static DateTime? _waktuDariJson(Object? nilai) {
+    if (nilai is! String || nilai.trim().isEmpty) return null;
+    return DateTime.tryParse(nilai);
   }
 }

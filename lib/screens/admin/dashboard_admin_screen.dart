@@ -45,8 +45,10 @@ class DashboardAdminScreenState extends State<DashboardAdminScreen> {
     muatUlang();
   }
 
-  Future<void> muatUlang() async {
-    if (mounted) setState(() => _memuat = true);
+  /// [senyap] dipakai penyegaran latar: tanpa penanda memuat dan tanpa
+  /// mengganti ringkasan yang sudah tampil bila permintaannya gagal.
+  Future<void> muatUlang({bool senyap = false}) async {
+    if (mounted && !senyap) setState(() => _memuat = true);
 
     try {
       // Admin melihat semua pesanan; 100 baris pertama sudah cukup untuk
@@ -59,6 +61,9 @@ class DashboardAdminScreenState extends State<DashboardAdminScreen> {
       });
     } on ApiException catch (kesalahan) {
       if (!mounted) return;
+
+      if (senyap && _semua.isNotEmpty) return;
+
       setState(() => _galat = kesalahan.pesan);
     } finally {
       if (mounted) setState(() => _memuat = false);
@@ -94,8 +99,6 @@ class DashboardAdminScreenState extends State<DashboardAdminScreen> {
                   ? 'Ringkasan seluruh pesanan LaundryKu.'
                   : 'Halo, ${widget.namaPengguna}. Berikut ringkasan seluruh '
                         'pesanan LaundryKu.',
-              onMuatUlang: muatUlang,
-              sedangMemuat: _memuat,
             ),
           ),
           SliverToBoxAdapter(child: _ringkasanTotal()),

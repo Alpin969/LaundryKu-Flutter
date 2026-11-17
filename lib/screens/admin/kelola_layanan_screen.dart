@@ -39,8 +39,10 @@ class KelolaLayananScreenState extends State<KelolaLayananScreen> {
     muatUlang();
   }
 
-  Future<void> muatUlang() async {
-    if (mounted) setState(() => _memuat = true);
+  /// [senyap] dipakai penyegaran latar: tanpa penanda memuat dan tanpa
+  /// mengganti daftar yang sudah tampil bila permintaannya gagal.
+  Future<void> muatUlang({bool senyap = false}) async {
+    if (mounted && !senyap) setState(() => _memuat = true);
 
     try {
       final List<Layanan> hasil = await _layananService.daftarSemua();
@@ -51,6 +53,9 @@ class KelolaLayananScreenState extends State<KelolaLayananScreen> {
       });
     } on ApiException catch (kesalahan) {
       if (!mounted) return;
+
+      if (senyap && _layanan.isNotEmpty) return;
+
       setState(() => _galat = kesalahan.pesan);
     } finally {
       if (mounted) setState(() => _memuat = false);
@@ -152,8 +157,6 @@ class KelolaLayananScreenState extends State<KelolaLayananScreen> {
           keterangan:
               'Layanan yang tampil di aplikasi pelanggan. Mengubah harga hanya '
               'berlaku untuk pesanan baru.',
-          onMuatUlang: muatUlang,
-          sedangMemuat: _memuat,
         ),
         Expanded(child: _isi()),
       ],

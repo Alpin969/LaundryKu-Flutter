@@ -5,22 +5,21 @@ import '../config/app_theme.dart';
 /// Kepala halaman untuk layar yang dipakai sebagai tab.
 ///
 /// Tab tidak punya AppBar sendiri karena kerangka navigasi sudah menyediakan
-/// tempatnya. Widget ini memberi judul dan tombol muat ulang yang seragam di
-/// semua tab.
+/// tempatnya. Widget ini memberi judul, keterangan, dan tombol tambahan yang
+/// seragam di semua tab.
+///
+/// Tombol muat ulang tidak lagi disediakan di sini: isi tab disegarkan sendiri
+/// oleh `PenyegarOtomatis` di kerangka navigasi.
 class JudulTab extends StatelessWidget {
   const JudulTab({
     super.key,
     required this.judul,
     this.keterangan,
-    this.onMuatUlang,
-    this.sedangMemuat = false,
     this.aksi,
   });
 
   final String judul;
   final String? keterangan;
-  final VoidCallback? onMuatUlang;
-  final bool sedangMemuat;
 
   /// Tombol tambahan di kanan, mis. "Tambah Layanan".
   final Widget? aksi;
@@ -28,7 +27,7 @@ class JudulTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(Jarak.xl, Jarak.lg, Jarak.md, Jarak.sm),
+      padding: const EdgeInsets.fromLTRB(Jarak.xl, Jarak.lg, Jarak.xl, Jarak.sm),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
@@ -62,19 +61,6 @@ class JudulTab extends StatelessWidget {
 
           // Tombol aksi hanya ikut disusun bila memang diberikan.
           ?aksi,
-
-          if (onMuatUlang != null)
-            IconButton(
-              onPressed: sedangMemuat ? null : onMuatUlang,
-              tooltip: 'Muat ulang',
-              icon: sedangMemuat
-                  ? const SizedBox(
-                      width: 18,
-                      height: 18,
-                      child: CircularProgressIndicator(strokeWidth: 2.2),
-                    )
-                  : const Icon(Icons.refresh_rounded),
-            ),
         ],
       ),
     );

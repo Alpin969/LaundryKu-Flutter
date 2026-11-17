@@ -56,8 +56,10 @@ class DaftarPesananScreenState extends State<DaftarPesananScreen> {
     muatUlang();
   }
 
-  Future<void> muatUlang() async {
-    if (mounted) setState(() => _memuat = true);
+  /// [senyap] dipakai penyegaran latar: tanpa penanda memuat dan tanpa
+  /// mengganti daftar yang sudah tampil bila permintaannya gagal.
+  Future<void> muatUlang({bool senyap = false}) async {
+    if (mounted && !senyap) setState(() => _memuat = true);
 
     try {
       final List<Pesanan> hasil = _saring == null
@@ -71,6 +73,9 @@ class DaftarPesananScreenState extends State<DaftarPesananScreen> {
       });
     } on ApiException catch (kesalahan) {
       if (!mounted) return;
+
+      if (senyap && _pesanan.isNotEmpty) return;
+
       setState(() => _galat = kesalahan.pesan);
     } finally {
       if (mounted) setState(() => _memuat = false);
@@ -87,8 +92,6 @@ class DaftarPesananScreenState extends State<DaftarPesananScreen> {
               ? 'Pesanan yang masih berjalan, dari menunggu konfirmasi sampai '
                     'siap diambil.'
               : _saring!.keterangan,
-          onMuatUlang: muatUlang,
-          sedangMemuat: _memuat,
         ),
         _penyaring(),
         Expanded(child: _isi()),

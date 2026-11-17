@@ -2,18 +2,14 @@ import 'package:flutter/material.dart';
 
 import '../../config/app_theme.dart';
 import '../../models/layanan.dart';
-import '../../models/pesanan.dart';
-import '../../models/status_pesanan.dart';
 import '../../services/api_client.dart';
+import '../../services/keranjang_service.dart';
 import '../../services/layanan_service.dart';
-import '../../services/pesanan_service.dart';
+import '../../utils/format.dart';
 import '../../widgets/kartu_layanan.dart';
-import '../../widgets/kartu_pesanan.dart';
 import '../../widgets/tampilan_status.dart';
-import 'daftar_layanan_screen.dart';
 import 'detail_layanan_screen.dart';
-import 'detail_pesanan_screen.dart';
-import 'form_pemesanan_screen.dart';
+import 'keranjang_screen.dart';
 
 /// Sapaan sesuai waktu di perangkat pengguna.
 String sapaanSekarang() {
@@ -26,9 +22,9 @@ String sapaanSekarang() {
 
 /// Beranda pelanggan.
 ///
-/// Isinya diarahkan pada satu pertanyaan: apa yang perlu saya lakukan
-/// sekarang? Karena itu pesanan yang sedang berjalan ditaruh paling atas dan
-/// tombol memesan selalu tersedia.
+/// Isinya hanya dua hal: keranjang yang sedang disiapkan, dan daftar layanan
+/// laundry beserta harganya. Pesanan yang sudah dibuat tidak ditampilkan di
+/// sini karena sudah punya tabnya sendiri (Pesanan dan Riwayat).
 class BerandaScreen extends StatefulWidget {
   const BerandaScreen({super.key, required this.namaPengguna});
 
@@ -39,13 +35,10 @@ class BerandaScreen extends StatefulWidget {
 }
 
 class BerandaScreenState extends State<BerandaScreen> {
-  final PesananService _pesananService = const PesananService();
   final LayananService _layananService = const LayananService();
 
-  List<Pesanan> _pesananAktif = <Pesanan>[];
   List<Layanan> _layanan = <Layanan>[];
   bool _memuat = true;
-  String? _galat;
   String? _galatLayanan;
 
   @override
@@ -54,29 +47,14 @@ class BerandaScreenState extends State<BerandaScreen> {
     muatUlang();
   }
 
-  /// Dipanggil kerangka navigasi ketika tab ini perlu menampilkan data
-  /// terbaru, mis. setelah pelanggan membuat pesanan baru.
-  Future<void> muatUlang() async {
-    if (mounted) setState(() => _memuat = true);
+  /// Dipanggil penyegar otomatis saat tab ini aktif.
+  ///
+  /// [senyap] dipakai penyegaran latar: penanda memuat tidak ditampilkan dan
+  /// data lama tetap di layar sampai data baru siap, supaya isi tab tidak
+  /// berkedip setiap kali disegarkan.
+  Future<void> muatUlang({bool senyap = false}) async {
+    if (mounted && !senyap) setState(() => _memuat = true);
 
-    try {
-      final List<Pesanan> hasil = await _pesananService.daftarBanyakStatus(
-        StatusPesanan.semuaAktif,
-      );
-      if (!mounted) return;
-      setState(() {
-        _pesananAktif = hasil;
-        _galat = null;
-      });
-    } on ApiException catch (kesalahan) {
-      if (!mounted) return;
-      setState(() => _galat = kesalahan.pesan);
-    } finally {
-      if (mounted) setState(() => _memuat = false);
-    }
-
-    // Layanan dimuat terpisah dari pesanan: kegagalannya tidak boleh
-    // menyembunyikan pesanan aktif yang sudah berhasil ditampilkan.
     try {
       final List<Layanan> layanan = await _layananService.daftarSemua();
       if (!mounted) return;
@@ -86,15 +64,19 @@ class BerandaScreenState extends State<BerandaScreen> {
       });
     } on ApiException catch (kesalahan) {
       if (!mounted) return;
+
+      // Satu permintaan latar yang gagal tidak perlu mengganti layanan yang
+      // sudah tampil dengan layar galat.
+      if (senyap && _layanan.isNotEmpty) return;
+
       setState(() {
         _layanan = <Layanan>[];
         _galatLayanan = kesalahan.pesan;
       });
+    } finally {
+      if (mounted) setState(() => _memuat = false);
     }
   }
-
-  int _jumlah(StatusPesanan status) =>
-      _pesananAktif.where((Pesanan p) => p.status == status).length;
 
   @override
   Widget build(BuildContext context) {
@@ -106,14 +88,9 @@ class BerandaScreenState extends State<BerandaScreen> {
         physics: const AlwaysScrollableScrollPhysics(),
         slivers: <Widget>[
           SliverToBoxAdapter(child: _sapaan()),
-          SliverToBoxAdapter(child: _ringkasan()),
-          SliverToBoxAdapter(child: _aksiCepat()),
+          SliverToBoxAdapter(child: _kartuKeranjang()),
           SliverToBoxAdapter(child: _judulLayanan()),
           SliverToBoxAdapter(child: _isiLayanan()),
-          SliverToBoxAdapter(child: _judulPesananAktif()),
-          ..._isiPesananAktif(),
-          SliverToBoxAdapter(child: _judulStatus()),
-          SliverToBoxAdapter(child: _daftarStatus()),
           const SliverToBoxAdapter(child: SizedBox(height: Jarak.xxl)),
         ],
       ),
@@ -145,153 +122,84 @@ class BerandaScreenState extends State<BerandaScreen> {
     );
   }
 
-  Widget _ringkasan() {
-    if (_galat != null) {
-      return Padding(
-        padding: const EdgeInsets.fromLTRB(
-          Jarak.xl,
-          Jarak.lg,
-          Jarak.xl,
-          0,
-        ),
-        child: TampilanGagal(
-          pesan: _galat!,
-          judul: 'Pesanan tidak bisa dimuat',
-          onCobaLagi: muatUlang,
-          ringkas: true,
-        ),
-      );
-    }
+  /// Pintu masuk keranjang.
+  ///
+  /// Angkanya diambil dari isi keranjang yang sebenarnya, dan saat kosong
+  /// keterangannya menyebut apa yang perlu dilakukan berikutnya, bukan sekadar
+  /// "kosong".
+  Widget _kartuKeranjang() {
+    return ListenableBuilder(
+      listenable: KeranjangService.instance,
+      builder: (BuildContext context, Widget? _) {
+        final KeranjangService keranjang = KeranjangService.instance;
 
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(Jarak.xl, Jarak.lg, Jarak.xl, 0),
-      child: Container(
-        padding: const EdgeInsets.all(Jarak.lg),
-        decoration: BoxDecoration(
-          color: Warna.primary,
-          borderRadius: BorderRadius.circular(Sudut.kartu),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Text(
-              _memuat
-                  ? 'Memuat pesanan...'
-                  : '${_pesananAktif.length} pesanan aktif',
-              style: const TextStyle(
-                fontSize: 13.5,
-                fontWeight: FontWeight.w600,
-                color: Colors.white,
-              ),
-            ),
-            if (!_memuat && _pesananAktif.isNotEmpty) ...<Widget>[
-              const SizedBox(height: Jarak.lg),
-              Row(
-                children: <Widget>[
-                  Expanded(
-                    child: _kotakStatistik(
-                      'Menunggu',
-                      _jumlah(StatusPesanan.menungguKonfirmasi),
+        return Padding(
+          padding: const EdgeInsets.fromLTRB(Jarak.xl, Jarak.lg, Jarak.xl, 0),
+          child: Card(
+            child: InkWell(
+              onTap: _bukaKeranjang,
+              borderRadius: BorderRadius.circular(Sudut.kartu),
+              child: Padding(
+                padding: const EdgeInsets.all(Jarak.lg),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    const Text(
+                      'Keranjang',
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        color: Warna.teksUtama,
+                      ),
                     ),
-                  ),
-                  Expanded(
-                    child: _kotakStatistik(
-                      'Diproses',
-                      _jumlah(StatusPesanan.dikonfirmasi) +
-                          _jumlah(StatusPesanan.sedangDicuci),
+                    const SizedBox(height: Jarak.xs),
+                    Text(
+                      keranjang.kosong
+                          ? 'Belum ada layanan dipilih. Buka layanan di bawah, '
+                                'lalu simpan ke keranjang.'
+                          : '${keranjang.jumlah} layanan, perkiraan '
+                                '${formatRupiah(keranjang.perkiraanTotal)}.',
+                      style: const TextStyle(
+                        fontSize: 12.5,
+                        color: Warna.teksKedua,
+                        height: 1.55,
+                      ),
                     ),
-                  ),
-                  Expanded(
-                    child: _kotakStatistik(
-                      'Siap Diambil',
-                      _jumlah(StatusPesanan.siapDiambil),
+                    const SizedBox(height: Jarak.md),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: OutlinedButton(
+                        onPressed: _bukaKeranjang,
+                        style: OutlinedButton.styleFrom(
+                          minimumSize: const Size(0, 44),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: Jarak.lg,
+                          ),
+                        ),
+                        child: const Text('Buka Keranjang'),
+                      ),
                     ),
-                  ),
-                ],
-              ),
-            ] else if (!_memuat) ...<Widget>[
-              const SizedBox(height: Jarak.sm),
-              Text(
-                'Belum ada pesanan yang sedang berjalan. Tekan tombol Pesan '
-                'Laundry untuk membuat pesanan pertama Anda.',
-                style: TextStyle(
-                  fontSize: 12.5,
-                  color: Colors.white.withValues(alpha: 0.88),
-                  height: 1.55,
+                  ],
                 ),
               ),
-            ],
-          ],
-        ),
-      ),
+            ),
+          ),
+        );
+      },
     );
   }
 
-  Widget _kotakStatistik(String label, int jumlah) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget>[
-        Text(
-          '$jumlah',
-          style: const TextStyle(
-            fontSize: 22,
-            fontWeight: FontWeight.w700,
-            color: Colors.white,
-            height: 1.1,
-          ),
-        ),
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 11.5,
-            color: Colors.white.withValues(alpha: 0.88),
-          ),
-        ),
-      ],
-    );
-  }
-
-  /// Dua tindakan utama: memesan, dan melihat daftar layanan beserta harganya.
-  Widget _aksiCepat() {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(Jarak.xl, Jarak.lg, Jarak.xl, 0),
-      child: Column(
-        children: <Widget>[
-          FilledButton(
-            onPressed: _pesanLaundry,
-            child: const Text('Pesan Laundry'),
-          ),
-          const SizedBox(height: Jarak.md),
-          OutlinedButton(
-            onPressed: _lihatLayanan,
-            child: const Text('Lihat Daftar Layanan'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Future<void> _pesanLaundry() async {
+  Future<void> _bukaKeranjang() async {
     await Navigator.of(context).push(
-      MaterialPageRoute<void>(builder: (_) => const FormPemesananScreen()),
+      MaterialPageRoute<void>(builder: (_) => const KeranjangScreen()),
     );
-    await muatUlang();
-  }
-
-  Future<void> _lihatLayanan() async {
-    await Navigator.of(context).push(
-      MaterialPageRoute<void>(
-        builder: (_) => const DaftarLayananScreen(memilihLayanan: true),
-      ),
-    );
-    await muatUlang();
   }
 
   /// Layanan ditampilkan langsung di beranda supaya pelanggan bisa melihat
   /// harga tanpa harus membuka halaman lain lebih dulu.
   ///
-  /// Backend belum menyediakan data layanan mana yang paling banyak dipesan,
-  /// jadi urutan di sini bukan peringkat popularitas.
+  /// Backend belum menyediakan urutan berdasarkan jumlah pemesanan, jadi
+  /// urutan di sini bukan peringkat popularitas.
   Widget _judulLayanan() {
     return const Padding(
       padding: EdgeInsets.fromLTRB(Jarak.xl, Jarak.xl, Jarak.xl, Jarak.md),
@@ -352,20 +260,17 @@ class BerandaScreenState extends State<BerandaScreen> {
             border: Border.all(color: Warna.garis),
           ),
           child: const Text(
-            'Belum ada layanan yang bisa dipesan. Coba muat ulang '
-            'sebentar lagi.',
+            'Belum ada layanan yang bisa dipesan. Admin belum menambahkan '
+            'layanan laundry.',
             style: TextStyle(fontSize: 13.5, color: Warna.teksKedua),
           ),
         ),
       );
     }
 
-    // Dua layanan saja di beranda; daftar lengkapnya ada di halaman layanan.
-    final List<Layanan> tampil = _layanan.take(2).toList();
-
     return Column(
       children: <Widget>[
-        for (final Layanan layanan in tampil)
+        for (final Layanan layanan in _layanan)
           Padding(
             padding: const EdgeInsets.fromLTRB(Jarak.xl, 0, Jarak.xl, Jarak.md),
             child: KartuLayanan(
@@ -373,20 +278,6 @@ class BerandaScreenState extends State<BerandaScreen> {
               onTap: () => _bukaDetailLayanan(layanan),
             ),
           ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: Jarak.xl),
-          child: SizedBox(
-            width: double.infinity,
-            child: TextButton(
-              onPressed: _lihatLayanan,
-              child: Text(
-                _layanan.length > tampil.length
-                    ? 'Lihat semua layanan (${_layanan.length})'
-                    : 'Lihat halaman layanan',
-              ),
-            ),
-          ),
-        ),
       ],
     );
   }
@@ -395,174 +286,6 @@ class BerandaScreenState extends State<BerandaScreen> {
     await Navigator.of(context).push(
       MaterialPageRoute<void>(
         builder: (_) => DetailLayananScreen(layanan: layanan),
-      ),
-    );
-  }
-
-  Widget _judulPesananAktif() {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(Jarak.xl, Jarak.xl, Jarak.xl, Jarak.md),
-      child: const Text(
-        'Pesanan Aktif',
-        style: TextStyle(
-          fontSize: 16,
-          fontWeight: FontWeight.w600,
-          color: Warna.teksUtama,
-        ),
-      ),
-    );
-  }
-
-  Widget _judulStatus() {
-    return const Padding(
-      padding: EdgeInsets.fromLTRB(Jarak.xl, Jarak.xl, Jarak.xl, Jarak.md),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Text(
-            'Status Pesanan',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-              color: Warna.teksUtama,
-            ),
-          ),
-          SizedBox(height: Jarak.xs),
-          Text(
-            'Enam tahapan yang dilalui pesanan Anda di LaundryKu.',
-            style: TextStyle(
-              fontSize: 13,
-              color: Warna.teksKedua,
-              height: 1.55,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  List<Widget> _isiPesananAktif() {
-    if (_memuat && _pesananAktif.isEmpty) {
-      return <Widget>[
-        const SliverToBoxAdapter(
-          child: TampilanMemuat(keterangan: 'Memuat pesanan...', ringkas: true),
-        ),
-      ];
-    }
-
-    // Galat sudah ditampilkan pada ringkasan di atas, tidak perlu diulang.
-    if (_galat != null) return const <Widget>[];
-
-    if (_pesananAktif.isEmpty) {
-      return <Widget>[
-        const SliverToBoxAdapter(
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: Jarak.xl),
-            child: _KotakKosongPesanan(),
-          ),
-        ),
-      ];
-    }
-
-    // Hanya tiga pesanan terbaru di beranda; sisanya ada di tab Pesanan.
-    final List<Pesanan> tampil = _pesananAktif.take(3).toList();
-
-    return <Widget>[
-      SliverList(
-        delegate: SliverChildBuilderDelegate((
-          BuildContext context,
-          int index,
-        ) {
-          final Pesanan pesanan = tampil[index];
-
-          return Padding(
-            padding: const EdgeInsets.fromLTRB(Jarak.xl, 0, Jarak.xl, Jarak.md),
-            child: KartuPesanan(
-              pesanan: pesanan,
-              onTap: () => bukaDetailPesanan(
-                context,
-                pesanan.id,
-              ).then((_) => muatUlang()),
-            ),
-          );
-        }, childCount: tampil.length),
-      ),
-    ];
-  }
-
-  Widget _daftarStatus() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: Jarak.xl),
-      child: Container(
-        decoration: BoxDecoration(
-          color: Warna.permukaan,
-          borderRadius: BorderRadius.circular(Sudut.kartu),
-          border: Border.all(color: Warna.garis),
-        ),
-        child: Column(
-          children: <Widget>[
-            for (int i = 0; i < StatusPesanan.values.length; i++) ...<Widget>[
-              _barisStatus(StatusPesanan.values[i]),
-              if (i < StatusPesanan.values.length - 1)
-                const Divider(height: 1, color: Warna.garis),
-            ],
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _barisStatus(StatusPesanan status) {
-    return Padding(
-      padding: const EdgeInsets.all(Jarak.lg),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Text(
-                  status.label,
-                  style: const TextStyle(
-                    fontSize: 13.5,
-                    fontWeight: FontWeight.w600,
-                    color: Warna.teksUtama,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  status.keterangan,
-                  style: const TextStyle(
-                    fontSize: 12.5,
-                    color: Warna.teksKedua,
-                    height: 1.5,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _KotakKosongPesanan extends StatelessWidget {
-  const _KotakKosongPesanan();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(Jarak.lg),
-      decoration: BoxDecoration(
-        color: Warna.permukaan,
-        borderRadius: BorderRadius.circular(Sudut.kartu),
-        border: Border.all(color: Warna.garis),
-      ),
-      child: const Text(
-        'Tidak ada pesanan aktif saat ini.',
-        style: TextStyle(fontSize: 13.5, color: Warna.teksKedua),
       ),
     );
   }

@@ -6,16 +6,20 @@ import '../config/app_theme.dart';
 ///
 /// Dipakai untuk memberi tahu hasil suatu tindakan: berhasil, gagal, atau
 /// sekadar informasi.
+///
+/// [aksi] dipakai bila pengguna sebaiknya langsung diarahkan ke langkah
+/// berikutnya, mis. membuka keranjang setelah layanan masuk ke sana.
 void tampilkanPesan(
   BuildContext context,
   String pesan, {
   JenisPesan jenis = JenisPesan.info,
+  SnackBarAction? aksi,
 }) {
   final ScaffoldMessengerState messenger = ScaffoldMessenger.of(context);
   // Pesan sebelumnya dibuang supaya tidak menumpuk saat pengguna menekan
   // tombol berkali-kali.
   messenger.hideCurrentSnackBar();
-  _tampilkanLewat(messenger, pesan, jenis);
+  _tampilkanLewat(messenger, pesan, jenis, aksi);
 }
 
 /// Sama seperti [tampilkanPesan], tetapi memakai [ScaffoldMessengerState] yang
@@ -28,15 +32,17 @@ void tampilkanPesanLewat(
   ScaffoldMessengerState messenger,
   String pesan, {
   JenisPesan jenis = JenisPesan.info,
+  SnackBarAction? aksi,
 }) {
   messenger.hideCurrentSnackBar();
-  _tampilkanLewat(messenger, pesan, jenis);
+  _tampilkanLewat(messenger, pesan, jenis, aksi);
 }
 
 void _tampilkanLewat(
   ScaffoldMessengerState messenger,
   String pesan,
   JenisPesan jenis,
+  SnackBarAction? aksi,
 ) {
   final Color warna = switch (jenis) {
     JenisPesan.sukses => Warna.sukses,
@@ -49,6 +55,7 @@ void _tampilkanLewat(
       backgroundColor: warna,
       duration: const Duration(seconds: 4),
       content: Text(pesan),
+      action: aksi,
     ),
   );
 }

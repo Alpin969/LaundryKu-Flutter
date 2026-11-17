@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../models/status_pesanan.dart';
 import '../../services/auth_service.dart';
+import '../../widgets/penyegar_otomatis.dart';
 import '../admin/dashboard_admin_screen.dart';
 import '../admin/kelola_layanan_screen.dart';
 import '../customer/beranda_screen.dart';
@@ -30,6 +31,10 @@ class TujuanNavigasi {
 ///
 /// Isi tiap tujuan disimpan dalam IndexedStack supaya posisi gulir dan data
 /// yang sudah dimuat tidak hilang saat berpindah tab.
+///
+/// Isi tab disegarkan sendiri oleh [PenyegarOtomatis], bukan oleh tombol muat
+/// ulang: tab yang sedang dilihat menyegarkan dirinya setiap beberapa detik,
+/// dan tab yang baru dibuka langsung menyegarkan diri sekali.
 class ShellPelanggan extends StatefulWidget {
   const ShellPelanggan({super.key});
 
@@ -40,14 +45,16 @@ class ShellPelanggan extends StatefulWidget {
 class ShellPelangganState extends State<ShellPelanggan> {
   int _indeks = 0;
 
-  // Kunci dipakai untuk meminta tab memuat ulang datanya dari luar, mis.
-  // beranda dan daftar pesanan setelah pelanggan membuat pesanan baru.
+  // Kunci dipakai untuk meminta tab memuat ulang datanya dari penyegar
+  // otomatis, dan untuk membuka tab tertentu dari luar kerangka.
   final GlobalKey<BerandaScreenState> _kunciBeranda =
       GlobalKey<BerandaScreenState>();
   final GlobalKey<DaftarPesananScreenState> _kunciPesanan =
       GlobalKey<DaftarPesananScreenState>();
   final GlobalKey<RiwayatScreenState> _kunciRiwayat =
       GlobalKey<RiwayatScreenState>();
+  final GlobalKey<ProfilScreenState> _kunciProfil =
+      GlobalKey<ProfilScreenState>();
 
   static const List<TujuanNavigasi> _tujuan = <TujuanNavigasi>[
     TujuanNavigasi(
@@ -75,11 +82,20 @@ class ShellPelangganState extends State<ShellPelanggan> {
   /// Membuka tab tertentu dari luar kerangka, mis. dari tombol di beranda.
   void pindahKe(int indeks) => setState(() => _indeks = indeks);
 
-  /// Menyegarkan seluruh tab yang menampilkan pesanan.
-  Future<void> segarkanPesanan() async {
-    await _kunciBeranda.currentState?.muatUlang();
-    await _kunciPesanan.currentState?.muatUlang();
-    await _kunciRiwayat.currentState?.muatUlang();
+  Future<void> _segarkanBeranda() async {
+    await _kunciBeranda.currentState?.muatUlang(senyap: true);
+  }
+
+  Future<void> _segarkanPesanan() async {
+    await _kunciPesanan.currentState?.muatUlang(senyap: true);
+  }
+
+  Future<void> _segarkanRiwayat() async {
+    await _kunciRiwayat.currentState?.muatUlang(senyap: true);
+  }
+
+  Future<void> _segarkanProfil() async {
+    await _kunciProfil.currentState?.muatUlang();
   }
 
   @override
@@ -97,10 +113,26 @@ class ShellPelangganState extends State<ShellPelanggan> {
             child: IndexedStack(
               index: _indeks,
               children: <Widget>[
-                BerandaScreen(key: _kunciBeranda, namaPengguna: nama),
-                DaftarPesananScreen(key: _kunciPesanan),
-                RiwayatScreen(key: _kunciRiwayat),
-                const ProfilScreen(),
+                PenyegarOtomatis(
+                  aktif: _indeks == 0,
+                  muatUlang: _segarkanBeranda,
+                  child: BerandaScreen(key: _kunciBeranda, namaPengguna: nama),
+                ),
+                PenyegarOtomatis(
+                  aktif: _indeks == 1,
+                  muatUlang: _segarkanPesanan,
+                  child: DaftarPesananScreen(key: _kunciPesanan),
+                ),
+                PenyegarOtomatis(
+                  aktif: _indeks == 2,
+                  muatUlang: _segarkanRiwayat,
+                  child: RiwayatScreen(key: _kunciRiwayat),
+                ),
+                PenyegarOtomatis(
+                  aktif: _indeks == 3,
+                  muatUlang: _segarkanProfil,
+                  child: ProfilScreen(key: _kunciProfil),
+                ),
               ],
             ),
           ),
@@ -127,6 +159,9 @@ class ShellPelangganState extends State<ShellPelanggan> {
 /// Navigasinya sengaja berbeda dari pelanggan: tab pertama adalah dashboard
 /// berisi ringkasan seluruh pesanan, dan ada tab Layanan untuk mengelola
 /// daftar layanan. Admin juga bisa melihat riwayat seluruh pesanan.
+///
+/// Seperti pada sisi pelanggan, isi tab disegarkan sendiri oleh
+/// [PenyegarOtomatis] tanpa tombol muat ulang.
 class ShellAdmin extends StatefulWidget {
   const ShellAdmin({super.key});
 
@@ -145,6 +180,8 @@ class ShellAdminState extends State<ShellAdmin> {
       GlobalKey<KelolaLayananScreenState>();
   final GlobalKey<RiwayatScreenState> _kunciRiwayat =
       GlobalKey<RiwayatScreenState>();
+  final GlobalKey<ProfilScreenState> _kunciProfil =
+      GlobalKey<ProfilScreenState>();
 
   static const List<TujuanNavigasi> _tujuan = <TujuanNavigasi>[
     TujuanNavigasi(
@@ -183,6 +220,26 @@ class ShellAdminState extends State<ShellAdmin> {
 
   void pindahKe(int indeks) => setState(() => _indeks = indeks);
 
+  Future<void> _segarkanDashboard() async {
+    await _kunciDashboard.currentState?.muatUlang(senyap: true);
+  }
+
+  Future<void> _segarkanPesanan() async {
+    await _kunciPesanan.currentState?.muatUlang(senyap: true);
+  }
+
+  Future<void> _segarkanLayanan() async {
+    await _kunciLayanan.currentState?.muatUlang(senyap: true);
+  }
+
+  Future<void> _segarkanRiwayat() async {
+    await _kunciRiwayat.currentState?.muatUlang(senyap: true);
+  }
+
+  Future<void> _segarkanProfil() async {
+    await _kunciProfil.currentState?.muatUlang();
+  }
+
   @override
   Widget build(BuildContext context) {
     final String nama = AuthService.instance.pengguna?.nama ?? '';
@@ -196,18 +253,41 @@ class ShellAdminState extends State<ShellAdmin> {
             child: IndexedStack(
               index: _indeks,
               children: <Widget>[
-                DashboardAdminScreen(
-                  key: _kunciDashboard,
-                  namaPengguna: nama,
-                  onBukaSemuaPesanan: bukaPesananTersaring,
+                PenyegarOtomatis(
+                  aktif: _indeks == 0,
+                  muatUlang: _segarkanDashboard,
+                  child: DashboardAdminScreen(
+                    key: _kunciDashboard,
+                    namaPengguna: nama,
+                    onBukaSemuaPesanan: bukaPesananTersaring,
+                  ),
                 ),
-                DaftarPesananScreen(
-                  key: _kunciPesanan,
-                  tampilkanPelanggan: true,
+                PenyegarOtomatis(
+                  aktif: _indeks == 1,
+                  muatUlang: _segarkanPesanan,
+                  child: DaftarPesananScreen(
+                    key: _kunciPesanan,
+                    tampilkanPelanggan: true,
+                  ),
                 ),
-                KelolaLayananScreen(key: _kunciLayanan),
-                RiwayatScreen(key: _kunciRiwayat, tampilkanPelanggan: true),
-                const ProfilScreen(),
+                PenyegarOtomatis(
+                  aktif: _indeks == 2,
+                  muatUlang: _segarkanLayanan,
+                  child: KelolaLayananScreen(key: _kunciLayanan),
+                ),
+                PenyegarOtomatis(
+                  aktif: _indeks == 3,
+                  muatUlang: _segarkanRiwayat,
+                  child: RiwayatScreen(
+                    key: _kunciRiwayat,
+                    tampilkanPelanggan: true,
+                  ),
+                ),
+                PenyegarOtomatis(
+                  aktif: _indeks == 4,
+                  muatUlang: _segarkanProfil,
+                  child: ProfilScreen(key: _kunciProfil),
+                ),
               ],
             ),
           ),

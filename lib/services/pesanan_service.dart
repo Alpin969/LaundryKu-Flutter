@@ -1,5 +1,6 @@
 import 'package:image_picker/image_picker.dart';
 
+import '../models/metode_pembayaran.dart';
 import '../models/pesanan.dart';
 import '../models/status_pesanan.dart';
 import 'api_client.dart';
@@ -15,6 +16,7 @@ import 'api_client.dart';
 ///   DELETE /api/orders/:id/foto        - hapus foto pesanan
 ///   PATCH  /api/orders/:id/status      - ubah status (ADMIN)
 ///   PATCH  /api/orders/:id/berat-asli  - isi berat asli (ADMIN)
+///   PATCH  /api/orders/:id/bayar       - konfirmasi pembayaran diterima (ADMIN)
 class PesananService {
   const PesananService();
 
@@ -89,6 +91,10 @@ class PesananService {
   /// `services` di dalam satu pernyataan SQL, sehingga harga tidak bisa
   /// dipalsukan lewat body permintaan.
   ///
+  /// [metode] diisi dari halaman keranjang. Backend mencatat tunai sebagai
+  /// belum dibayar (admin yang mengonfirmasi), sedangkan metode lain langsung
+  /// dianggap lunas.
+  ///
   /// Respons backend untuk endpoint ini hanya berisi baris `orders` apa
   /// adanya: nama layanan dan nama pemesan yang sudah digabung TIDAK ikut
   /// dikirim. Karena itu hasilnya dilengkapi lewat [detail] supaya pemanggil
@@ -96,12 +102,14 @@ class PesananService {
   Future<Pesanan> buat({
     required int serviceId,
     required double estimatedWeight,
+    MetodePembayaran? metode,
   }) async {
     final dynamic data = await ApiClient.instance.post(
       '/api/orders',
       body: <String, dynamic>{
         'service_id': serviceId,
         'estimated_weight': estimatedWeight,
+        'payment_method': metode?.kode,
       },
     );
 
@@ -247,6 +255,19 @@ class PesananService {
     final dynamic data = await ApiClient.instance.patch(
       '/api/orders/$orderId/berat-asli',
       body: <String, dynamic>{'actual_weight': actualWeight},
+    );
+
+    return Pesanan.dariJson(Map<String, dynamic>.from(data as Map));
+  }
+
+  /// Mengonfirmasi pembayaran pesanan sudah diterima (ADMIN).
+  ///
+  /// Dipakai untuk pembayaran tunai, yang uangnya baru benar-benar diterima
+  /// saat pakaian diambil. Pesanan sudah lunas tidak bisa dikonfirmasi lagi;
+  /// backend menjawab HTTP 409 dengan alasan yang jelas.
+  Future<Pesanan> konfirmasiBayar(int orderId) async {
+    final dynamic data = await ApiClient.instance.patch(
+      '/api/orders/$orderId/bayar',
     );
 
     return Pesanan.dariJson(Map<String, dynamic>.from(data as Map));
