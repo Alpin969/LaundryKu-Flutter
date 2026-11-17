@@ -5,7 +5,6 @@ import '../../models/layanan.dart';
 import '../../services/api_client.dart';
 import '../../services/keranjang_service.dart';
 import '../../services/layanan_service.dart';
-import '../../utils/format.dart';
 import '../../widgets/kartu_layanan.dart';
 import '../../widgets/tampilan_status.dart';
 import 'detail_layanan_screen.dart';
@@ -22,9 +21,10 @@ String sapaanSekarang() {
 
 /// Beranda pelanggan.
 ///
-/// Isinya hanya dua hal: keranjang yang sedang disiapkan, dan daftar layanan
-/// laundry beserta harganya. Pesanan yang sudah dibuat tidak ditampilkan di
-/// sini karena sudah punya tabnya sendiri (Pesanan dan Riwayat).
+/// Isinya sapaan, pintu masuk keranjang di pojok kanan atas, dan daftar
+/// layanan laundry beserta harganya. Pesanan yang sudah dibuat tidak
+/// ditampilkan di sini karena sudah punya tabnya sendiri (Pesanan dan
+/// Riwayat).
 class BerandaScreen extends StatefulWidget {
   const BerandaScreen({super.key, required this.namaPengguna});
 
@@ -87,8 +87,7 @@ class BerandaScreenState extends State<BerandaScreen> {
         // walaupun isinya masih pendek.
         physics: const AlwaysScrollableScrollPhysics(),
         slivers: <Widget>[
-          SliverToBoxAdapter(child: _sapaan()),
-          SliverToBoxAdapter(child: _kartuKeranjang()),
+          SliverToBoxAdapter(child: _kepala()),
           SliverToBoxAdapter(child: _judulLayanan()),
           SliverToBoxAdapter(child: _isiLayanan()),
           const SliverToBoxAdapter(child: SizedBox(height: Jarak.xxl)),
@@ -97,92 +96,62 @@ class BerandaScreenState extends State<BerandaScreen> {
     );
   }
 
-  Widget _sapaan() {
+  /// Kepala beranda: sapaan di kiri, pintu masuk keranjang di kanan.
+  Widget _kepala() {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(Jarak.xl, Jarak.lg, Jarak.xl, 0),
-      child: Column(
+      padding: const EdgeInsets.fromLTRB(Jarak.xl, Jarak.lg, Jarak.md, 0),
+      child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Text(
-            '${sapaanSekarang()},',
-            style: const TextStyle(fontSize: 13.5, color: Warna.teksKedua),
-          ),
-          const SizedBox(height: 2),
-          Text(
-            widget.namaPengguna.isEmpty ? 'Pelanggan' : widget.namaPengguna,
-            style: const TextStyle(
-              fontSize: 21,
-              fontWeight: FontWeight.w700,
-              color: Warna.teksUtama,
-              height: 1.25,
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Text(
+                  '${sapaanSekarang()},',
+                  style: const TextStyle(
+                    fontSize: 13.5,
+                    color: Warna.teksKedua,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  widget.namaPengguna.isEmpty
+                      ? 'Pelanggan'
+                      : widget.namaPengguna,
+                  style: const TextStyle(
+                    fontSize: 21,
+                    fontWeight: FontWeight.w700,
+                    color: Warna.teksUtama,
+                    height: 1.25,
+                  ),
+                ),
+              ],
             ),
           ),
+          _tombolKeranjang(),
         ],
       ),
     );
   }
 
-  /// Pintu masuk keranjang.
+  /// Pintu masuk keranjang di pojok kanan atas.
   ///
-  /// Angkanya diambil dari isi keranjang yang sebenarnya, dan saat kosong
-  /// keterangannya menyebut apa yang perlu dilakukan berikutnya, bukan sekadar
-  /// "kosong".
-  Widget _kartuKeranjang() {
+  /// Jumlah layanan yang menunggu dibayar ditampilkan sebagai angka pada
+  /// lencana, bukan sebagai kalimat, supaya kepala beranda tetap ringkas.
+  Widget _tombolKeranjang() {
     return ListenableBuilder(
       listenable: KeranjangService.instance,
       builder: (BuildContext context, Widget? _) {
-        final KeranjangService keranjang = KeranjangService.instance;
+        final int jumlah = KeranjangService.instance.jumlah;
 
-        return Padding(
-          padding: const EdgeInsets.fromLTRB(Jarak.xl, Jarak.lg, Jarak.xl, 0),
-          child: Card(
-            child: InkWell(
-              onTap: _bukaKeranjang,
-              borderRadius: BorderRadius.circular(Sudut.kartu),
-              child: Padding(
-                padding: const EdgeInsets.all(Jarak.lg),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    const Text(
-                      'Keranjang',
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w600,
-                        color: Warna.teksUtama,
-                      ),
-                    ),
-                    const SizedBox(height: Jarak.xs),
-                    Text(
-                      keranjang.kosong
-                          ? 'Belum ada layanan dipilih. Buka layanan di bawah, '
-                                'lalu simpan ke keranjang.'
-                          : '${keranjang.jumlah} layanan, perkiraan '
-                                '${formatRupiah(keranjang.perkiraanTotal)}.',
-                      style: const TextStyle(
-                        fontSize: 12.5,
-                        color: Warna.teksKedua,
-                        height: 1.55,
-                      ),
-                    ),
-                    const SizedBox(height: Jarak.md),
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: OutlinedButton(
-                        onPressed: _bukaKeranjang,
-                        style: OutlinedButton.styleFrom(
-                          minimumSize: const Size(0, 44),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: Jarak.lg,
-                          ),
-                        ),
-                        child: const Text('Buka Keranjang'),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
+        return IconButton(
+          onPressed: _bukaKeranjang,
+          tooltip: 'Keranjang',
+          icon: Badge(
+            isLabelVisible: jumlah > 0,
+            label: Text('$jumlah'),
+            child: const Icon(Icons.shopping_cart_outlined),
           ),
         );
       },

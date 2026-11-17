@@ -6,7 +6,11 @@ import '../../services/auth_service.dart';
 import '../../utils/format.dart';
 import 'form_pemesanan_screen.dart';
 
-/// Detail satu layanan, dengan tombol untuk menambahkannya ke keranjang.
+/// Detail satu layanan.
+///
+/// Dari sini pelanggan memilih dua jalan: "Bayar Langsung" untuk membayar
+/// layanan ini saja, atau "Tambah ke Keranjang" untuk menggabungkannya dengan
+/// layanan lain sebelum membayar.
 class DetailLayananScreen extends StatelessWidget {
   const DetailLayananScreen({super.key, required this.layanan});
 
@@ -138,11 +142,17 @@ class DetailLayananScreen extends StatelessWidget {
                 ),
               ),
             )
-          else
+          else ...<Widget>[
             FilledButton(
-              onPressed: () => _tambahKeKeranjang(context),
+              onPressed: () => _bukaForm(context, langsungBayar: true),
+              child: const Text('Bayar Langsung'),
+            ),
+            const SizedBox(height: Jarak.md),
+            OutlinedButton(
+              onPressed: () => _bukaForm(context, langsungBayar: false),
               child: const Text('Tambah ke Keranjang'),
             ),
+          ],
 
           const SizedBox(height: Jarak.lg),
         ],
@@ -150,10 +160,13 @@ class DetailLayananScreen extends StatelessWidget {
     );
   }
 
-  void _tambahKeKeranjang(BuildContext context) {
+  void _bukaForm(BuildContext context, {required bool langsungBayar}) {
     Navigator.of(context).push(
       MaterialPageRoute<void>(
-        builder: (_) => FormPemesananScreen(layananAwal: layanan),
+        builder: (_) => FormPemesananScreen(
+          layananAwal: layanan,
+          langsungBayar: langsungBayar,
+        ),
       ),
     );
   }

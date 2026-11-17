@@ -11,6 +11,7 @@ import '../../utils/validasi.dart';
 import '../../widgets/pemilih_foto.dart';
 import '../../widgets/pesan_ui.dart';
 import '../../widgets/tampilan_status.dart';
+import 'keranjang_screen.dart';
 
 /// Form penyusunan satu item keranjang.
 ///
@@ -23,10 +24,19 @@ import '../../widgets/tampilan_status.dart';
 /// punya kolomnya. Menyediakan kolom yang tidak pernah terkirim hanya akan
 /// membuat pelanggan mengira catatannya sampai ke admin.
 class FormPemesananScreen extends StatefulWidget {
-  const FormPemesananScreen({super.key, this.layananAwal});
+  const FormPemesananScreen({
+    super.key,
+    this.layananAwal,
+    this.langsungBayar = false,
+  });
 
   /// Layanan yang sudah dipilih sebelumnya, mis. dari halaman detail layanan.
   final Layanan? layananAwal;
+
+  /// Dipilih pelanggan lewat tombol "Bayar Langsung" di halaman detail
+  /// layanan: setelah tersimpan di keranjang, halaman keranjang langsung
+  /// dibuka supaya pesanannya bisa dibayar tanpa membuka keranjang sendiri.
+  final bool langsungBayar;
 
   @override
   State<FormPemesananScreen> createState() => _FormPemesananScreenState();
@@ -130,7 +140,17 @@ class _FormPemesananScreenState extends State<FormPemesananScreen> {
     final ScaffoldMessengerState messenger = ScaffoldMessenger.of(context);
     final int jumlah = KeranjangService.instance.jumlah;
 
-    navigator.pop();
+    if (widget.langsungBayar) {
+      // Halaman ini digantikan halaman keranjang, bukan ditumpuk di atasnya:
+      // tombol kembali dari keranjang sebaiknya menuju detail layanan, bukan
+      // kembali ke form yang sudah selesai diisi.
+      navigator.pushReplacement(
+        MaterialPageRoute<void>(builder: (_) => const KeranjangScreen()),
+      );
+    } else {
+      navigator.pop();
+    }
+
     tampilkanPesanLewat(
       messenger,
       '$berat kg ${layanan.nama} masuk keranjang. '
@@ -142,7 +162,11 @@ class _FormPemesananScreenState extends State<FormPemesananScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Tambah ke Keranjang')),
+      appBar: AppBar(
+        title: Text(
+          widget.langsungBayar ? 'Bayar Langsung' : 'Tambah ke Keranjang',
+        ),
+      ),
       body: _memuatLayanan
           ? const TampilanMemuat(keterangan: 'Memuat daftar layanan...')
           : _galatLayanan != null
@@ -269,7 +293,11 @@ class _FormPemesananScreenState extends State<FormPemesananScreen> {
                     onPressed: _daftarLayanan.isEmpty
                         ? null
                         : _simpanKeKeranjang,
-                    child: const Text('Simpan ke Keranjang'),
+                    child: Text(
+                      widget.langsungBayar
+                          ? 'Lanjut ke Pembayaran'
+                          : 'Simpan ke Keranjang',
+                    ),
                   ),
 
                   const SizedBox(height: Jarak.lg),
