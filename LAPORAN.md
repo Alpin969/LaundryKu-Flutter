@@ -340,6 +340,12 @@ termasuk penolakan transisi yang tidak sah, pembatalan pesanan, dan logout.
   tombol Masuk, dan tautan "Belum punya akun? Daftar di sini" tampil sesuai rancangan.
 - **Galeri komponen** dengan data sungguhan dari API: lencana status, kartu pesanan,
   kartu layanan, baris detail, serta penanda gagal dan kosong tampil sesuai rancangan.
+- **Halaman pilihan layanan** pada 390 px dan 320 px, memakai jawaban
+  `GET /api/services` yang sungguhan: kelima layanan tampil lengkap dengan harga
+  dan estimasi pengerjaannya, tidak ada nama bergaya data uji, dan tidak ada teks
+  yang terpotong. Diperiksa dengan menggambar layarnya langsung dari data API,
+  karena pengujian tata letak hanya menilai tidak ada luapan — bukan apakah
+  teksnya masih terbaca.
 - **Build web** untuk memeriksa hasil sungguhan di peramban:
 
 ```bash
@@ -367,6 +373,15 @@ menutupi beranda. Perbaikannya: halaman daftar menutup dirinya sendiri
 (`popUntil` ke rute pertama) memakai `Navigator` yang ditangkap sebelum
 permintaan dikirim. Pengujian `test/alur_masuk_test.dart` ditambahkan supaya
 masalah ini tidak kembali diam-diam.
+
+Cacat ketiga ditemukan lewat pemeriksaan gambar layar, juga bukan lewat
+pengujian: **kolom pilihan layanan pada formulir pemesanan menuliskan nama
+layanan beserta harganya, sehingga nama yang panjang terpotong elipsis** pada
+layar sempit — terbaca "Cuci Express 24 Jam - Rp 12.0…". Pengujian tata letak
+tidak menangkapnya karena yang dinilai hanya ada-tidaknya luapan, sedangkan
+teks yang terpotong elipsis tidak dianggap meluap. Perbaikannya: kolom tertutup
+kini hanya menampilkan nama layanan, sementara daftar pilihannya tetap memuat
+harga per kilogram sebagai pembanding.
 
 ---
 
@@ -646,11 +661,11 @@ pernah ikut ter-commit.
    Menambahkannya butuh kolom baru di backend.
 
 6. **Layar dalam keadaan login belum semuanya diperiksa dengan mata sendiri.**
-   Yang sudah dilihat langsung: halaman masuk, alur masuk sampai beranda, dan
-   galeri komponen dengan data API sungguhan. Layar lainnya diverifikasi lewat
-   pengujian tata letak otomatis pada empat ukuran layar dan pengujian alur,
-   bukan lewat gambar. Disebutkan di sini supaya tidak terbaca sebagai sudah
-   diperiksa secara visual.
+   Yang sudah dilihat langsung: halaman masuk dan halaman pilihan layanan pada
+   390 px dan 320 px, keduanya dengan data dari API sungguhan. Layar lainnya
+   diverifikasi lewat pengujian tata letak otomatis pada empat ukuran layar dan
+   pengujian alur, bukan lewat gambar. Disebutkan di sini supaya tidak terbaca
+   sebagai sudah diperiksa secara visual.
 
 7. **Belum ada deployment** — sesuai batasan pekerjaan pada tahap ini.
 
