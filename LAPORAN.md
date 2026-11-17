@@ -553,7 +553,6 @@ git log --oneline main..feature/mobile
 - Tidak memakai `git reset --hard`
 - Tidak memakai force checkout maupun force push
 - Tidak merge otomatis ke `main`
-- Tidak mengubah atau memakai branch backend milik repository backend
 - Tidak melakukan deployment
 
 ### Perubahan pada repository backend
@@ -571,9 +570,12 @@ Yang diubah hanya enam berkas di `backend/src/`, ditambah **dua endpoint baru**:
 | `src/controllers/orders.controller.js` | Handler `hapusFoto` (DELETE `/api/orders/:id/foto`) |
 | `src/routes/orders.routes.js` | Rute DELETE `/:id/foto` |
 
-Branch backend dibiarkan apa adanya: tidak ada `git reset`, tidak ada force
-push, dan tidak ada branch backend yang diubah. Perubahan itu disimpan sebagai
-commit tersendiri di sana, terpisah dari seluruh commit di repository ini.
+Commit itu dikirim ke branch `feature/backend` yang sudah ada di repository
+backend, dengan pemeriksaan lebih dulu bahwa pengirimannya hanya menambah:
+`git merge-base --is-ancestor origin/feature/backend HEAD` memastikan commit
+lama masih menjadi leluhur, sehingga `ad6448b..c248e0e` terkirim sebagai
+fast-forward. Tidak ada `git reset`, tidak ada force push, dan branch `main`
+di repository itu tidak tersentuh.
 
 Aplikasi Flutter tetap tidak menyimpan kredensial apa pun. Kedua endpoint baru
 dipanggil lewat `Authorization: Bearer <token>` seperti endpoint lainnya.
