@@ -491,6 +491,32 @@ tidak pernah selesai. Di aplikasi sungguhan hal ini tidak terjadi.
 seperti biasa di dalam pengujian. Pelajarannya: kegagalan di dalam pengujian
 belum tentu cacat aplikasi, dan harus ditelusuri sampai ketemu sebelum diperbaiki.
 
+### 9. Data uji muncul sebagai pilihan layanan di aplikasi
+
+Temuan langsung dari pemilik proyek saat memakai aplikasi: pada bagian pilihan
+layanan muncul nama seperti `[PROBE] Hapus 1794854612230`, `[UJI] Cuci Saja`,
+dan empat baris kembar `[UJI MOBILE] Cuci Express`.
+
+Penyebabnya bukan kode aplikasi — pencarian di seluruh `lib/` tidak menemukan
+satu pun teks semacam itu. Sumbernya ada di database: **seluruh delapan layanan
+yang ada saat itu adalah data uji buatan pengujian otomatis**. Pengujian
+integrasi memang membuat layanan sungguhan di database yang sama dengan yang
+dipakai aplikasi, dan tidak pernah membersihkannya setelah selesai.
+
+Perbaikannya: 8 layanan uji, 32 pesanan uji, 19 akun uji, dan 13 foto dihapus,
+lalu diganti lima layanan asli. Sebelum dihapus, isi ketiga tabel dan seluruh
+fotonya dicadangkan lebih dulu.
+
+Supaya tidak terulang, dua hal ditambahkan:
+
+- `backend/scripts/bersihkan-data-uji.js`, dijalankan dengan
+  `npm run bersihkan-data-uji` (tambahkan `--lihat` untuk memeriksa tanpa
+  menghapus). Skrip ini mengenali data uji dari pola nama dan surelnya, dan
+  menghapus foto hanya bila tidak ada pesanan yang menunjuknya — data sungguhan
+  tidak pernah disentuh.
+- Catatan di bagian atas `test/api_integration_test.dart` yang menyebut
+  kewajiban membersihkan data uji setelah pengujian dijalankan.
+
 ---
 
 ## I. Git
@@ -604,10 +630,12 @@ pernah ikut ter-commit.
    dijalankan di perangkat maupun emulator. Verifikasi tampilan dilakukan lewat
    build web.
 
-3. **Data uji masih tertinggal di database bersama.**
-   Akun `uji-mobile-*@laundryku.test` dan `uji-galeri-*@laundryku.test`, layanan
-   berawalan `[UJI MOBILE]`, beberapa pesanan uji, dan foto di `backend/uploads`.
-   Belum dibersihkan. Semua diberi awalan yang jelas supaya mudah dikenali.
+3. **Data uji sudah dibersihkan dari database bersama.**
+   Seluruh layanan, pesanan, akun uji, dan fotonya sudah dihapus, lalu diganti
+   lima layanan asli. Sebabnya dibahas di bagian H.9. Sebelum dihapus, seluruh
+   isinya dicadangkan lebih dulu. Agar tidak terulang, backend sekarang punya
+   `npm run bersihkan-data-uji` (`backend/scripts/bersihkan-data-uji.js`) yang
+   mengenali data uji dari polanya dan tidak pernah menyentuh data sungguhan.
 
 4. **"Layanan populer" belum ada** karena backend tidak menyediakan datanya
    (bagian H.6).
@@ -658,3 +686,12 @@ flutter test test/api_integration_test.dart \
 
 Bagian khusus admin dilewati bila `ADMIN_EMAIL` dan `ADMIN_PASSWORD` tidak diisi,
 sehingga berkas uji integrasi tetap berguna untuk memeriksa bagian pelanggan saja.
+
+Setelah pengujian integrasi selesai, bersihkan data ujinya. Kalau tidak, nama
+seperti `[UJI MOBILE]` akan ikut tampil di pilihan layanan aplikasi:
+
+```bash
+cd ../LaundryKu/backend
+npm run bersihkan-data-uji -- --lihat   # melihat apa yang akan dihapus
+npm run bersihkan-data-uji              # menghapus
+```

@@ -29,6 +29,13 @@
 //
 // Data uji dibuat memakai awalan "[UJI MOBILE]" dan surel berakhiran
 // "@laundryku.test" supaya mudah dikenali dan dibersihkan.
+//
+// WAJIB dibersihkan setelah selesai, karena layanan uji ikut tampil di pilihan
+// layanan aplikasi bila dibiarkan di database:
+//
+//   cd backend
+//   npm run bersihkan-data-uji -- --lihat    (melihat saja)
+//   npm run bersihkan-data-uji               (menghapus)
 
 import 'dart:convert';
 import 'dart:typed_data';
