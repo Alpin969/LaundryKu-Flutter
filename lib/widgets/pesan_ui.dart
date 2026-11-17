@@ -1,0 +1,169 @@
+import 'package:flutter/material.dart';
+
+import '../config/app_theme.dart';
+
+/// Menampilkan pesan singkat di bagian bawah layar.
+///
+/// Dipakai untuk memberi tahu hasil suatu tindakan: berhasil, gagal, atau
+/// sekadar informasi.
+///
+/// [aksi] dipakai bila pengguna sebaiknya langsung diarahkan ke langkah
+/// berikutnya, mis. membuka keranjang setelah layanan masuk ke sana.
+void tampilkanPesan(
+  BuildContext context,
+  String pesan, {
+  JenisPesan jenis = JenisPesan.info,
+  SnackBarAction? aksi,
+}) {
+  final ScaffoldMessengerState messenger = ScaffoldMessenger.of(context);
+  // Pesan sebelumnya dibuang supaya tidak menumpuk saat pengguna menekan
+  // tombol berkali-kali.
+  messenger.hideCurrentSnackBar();
+  _tampilkanLewat(messenger, pesan, jenis, aksi);
+}
+
+/// Sama seperti [tampilkanPesan], tetapi memakai [ScaffoldMessengerState] yang
+/// sudah ditangkap lebih dulu.
+///
+/// Dibutuhkan halaman yang menutup dirinya sendiri sebelum menampilkan pesan
+/// (mis. setelah pesanan dibuat): context halaman itu sudah tidak berlaku lagi,
+/// sedangkan ScaffoldMessenger milik aplikasi tetap hidup.
+void tampilkanPesanLewat(
+  ScaffoldMessengerState messenger,
+  String pesan, {
+  JenisPesan jenis = JenisPesan.info,
+  SnackBarAction? aksi,
+}) {
+  messenger.hideCurrentSnackBar();
+  _tampilkanLewat(messenger, pesan, jenis, aksi);
+}
+
+void _tampilkanLewat(
+  ScaffoldMessengerState messenger,
+  String pesan,
+  JenisPesan jenis,
+  SnackBarAction? aksi,
+) {
+  final Color warna = switch (jenis) {
+    JenisPesan.sukses => Warna.sukses,
+    JenisPesan.gagal => Warna.bahaya,
+    JenisPesan.info => Warna.primary,
+  };
+
+  messenger.showSnackBar(
+    SnackBar(
+      backgroundColor: warna,
+      duration: const Duration(seconds: 4),
+      content: Text(pesan),
+      action: aksi,
+    ),
+  );
+}
+
+enum JenisPesan { sukses, gagal, info }
+
+/// Dialog konfirmasi untuk tindakan yang tidak bisa dibatalkan.
+///
+/// Mengembalikan true bila pengguna menekan tombol lanjut.
+Future<bool> konfirmasi(
+  BuildContext context, {
+  required String judul,
+  required String pesan,
+  String labelLanjut = 'Lanjutkan',
+  String labelBatal = 'Batal',
+  bool berbahaya = false,
+}) async {
+  final bool? jawaban = await showDialog<bool>(
+    context: context,
+    builder: (BuildContext dialogContext) {
+      return AlertDialog(
+        title: Text(judul),
+        content: Text(pesan),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            style: TextButton.styleFrom(
+              foregroundColor: Warna.teksKedua,
+            ),
+            child: Text(labelBatal),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            style: FilledButton.styleFrom(
+              backgroundColor: berbahaya ? Warna.bahaya : Warna.primary,
+              minimumSize: const Size(0, 44),
+              padding: const EdgeInsets.symmetric(horizontal: Jarak.lg),
+            ),
+            child: Text(labelLanjut),
+          ),
+        ],
+      );
+    },
+  );
+
+  return jawaban ?? false;
+}
+
+/// Lembar pilihan di bagian bawah layar.
+///
+/// Dipakai saat pengguna harus memilih satu dari beberapa tindakan, mis.
+/// mengambil foto dari kamera atau dari galeri.
+Future<T?> pilihDariLembar<T>(
+  BuildContext context, {
+  required String judul,
+  required List<({T nilai, String label, String? keterangan})> pilihan,
+}) {
+  return showModalBottomSheet<T>(
+    context: context,
+    builder: (BuildContext sheetContext) {
+      return SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.only(top: Jarak.sm, bottom: Jarak.sm),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Padding(
+                padding: const EdgeInsets.fromLTRB(
+                  Jarak.xl,
+                  Jarak.md,
+                  Jarak.xl,
+                  Jarak.sm,
+                ),
+                child: Text(
+                  judul,
+                  style: const TextStyle(
+                    fontSize: 15.5,
+                    fontWeight: FontWeight.w600,
+                    color: Warna.teksUtama,
+                  ),
+                ),
+              ),
+              for (final ({T nilai, String label, String? keterangan}) item
+                  in pilihan)
+                ListTile(
+                  title: Text(
+                    item.label,
+                    style: const TextStyle(
+                      fontSize: 14.5,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  subtitle: item.keterangan == null
+                      ? null
+                      : Text(
+                          item.keterangan!,
+                          style: const TextStyle(
+                            fontSize: 12.5,
+                            color: Warna.teksKedua,
+                          ),
+                        ),
+                  onTap: () => Navigator.of(sheetContext).pop(item.nilai),
+                ),
+            ],
+          ),
+        ),
+      );
+    },
+  );
+}
