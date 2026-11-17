@@ -184,7 +184,7 @@ class ApiClient {
       respons = await jalankan().timeout(_batasWaktu);
     } on TimeoutException {
       throw ApiException(
-        'Server tidak merespons dalam ${_batasWaktu.inSeconds} detik. '
+        'LaundryKu tidak merespons dalam ${_batasWaktu.inSeconds} detik. '
         'Periksa koneksi internet lalu coba lagi.',
         kode: 'TIMEOUT',
       );
@@ -193,14 +193,18 @@ class ApiClient {
       // web maupun di Android/iOS (package http membungkus SocketException
       // menjadi ClientException). Karena itu tidak perlu dart:io di sini, dan
       // aplikasi ini tetap bisa dibangun untuk web.
+      //
+      // Pesannya sengaja tidak menyebut alamat API: yang perlu diketahui
+      // pengguna hanya bahwa koneksinya bermasalah dan apa yang bisa dicoba.
       throw ApiException(
-        'Tidak bisa terhubung ke server LaundryKu di ${ApiConfig.baseUrl}. '
-        'Pastikan backend sudah berjalan dan alamat API-nya benar.',
+        'Tidak bisa terhubung ke LaundryKu. Periksa koneksi internet Anda, '
+        'lalu coba lagi.',
         kode: 'KONEKSI_GAGAL',
       );
     } on FormatException {
       throw ApiException(
-        'Alamat API tidak valid: ${ApiConfig.baseUrl}.',
+        'Aplikasi tidak bisa menghubungi layanan LaundryKu. '
+        'Coba lagi sebentar lagi.',
         kode: 'ALAMAT_TIDAK_SAH',
       );
     }
@@ -212,7 +216,8 @@ class ApiClient {
       isi = jsonDecode(utf8.decode(respons.bodyBytes));
     } on FormatException {
       throw ApiException(
-        'Jawaban server tidak dapat dibaca (HTTP ${respons.statusCode}).',
+        'Jawaban LaundryKu tidak dapat dibaca (HTTP ${respons.statusCode}). '
+        'Coba lagi sebentar lagi.',
         kode: 'JAWABAN_TIDAK_SAH',
         statusCode: respons.statusCode,
       );
@@ -250,7 +255,7 @@ class ApiClient {
 
     switch (statusCode) {
       case 400:
-        return 'Data yang dikirim tidak sesuai aturan server.';
+        return 'Data yang dikirim belum sesuai ketentuan.';
       case 401:
         return 'Sesi Anda sudah berakhir. Silakan login kembali.';
       case 403:
@@ -258,15 +263,17 @@ class ApiClient {
       case 404:
         return 'Data yang diminta tidak ditemukan.';
       case 409:
-        return 'Data ini bertentangan dengan keadaan terbaru di server.';
+        return 'Data ini bertentangan dengan keadaan terbaru. '
+            'Muat ulang lalu coba lagi.';
       case 413:
         return 'Berkas yang dikirim terlalu besar.';
       case 429:
         return 'Terlalu banyak percobaan. Tunggu sebentar lalu coba lagi.';
       case 500:
-        return 'Terjadi kesalahan pada server. Coba lagi beberapa saat lagi.';
+        return 'Terjadi kesalahan pada LaundryKu. Coba lagi beberapa saat lagi.';
       case 503:
-        return 'Server sedang tidak siap melayani permintaan.';
+        return 'LaundryKu sedang tidak bisa melayani permintaan. '
+            'Coba lagi beberapa saat lagi.';
       default:
         return 'Permintaan gagal dengan kode HTTP $statusCode.';
     }

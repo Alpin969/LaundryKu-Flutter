@@ -109,10 +109,10 @@ class _GagalTampil extends StatelessWidget {
   }
 }
 
-/// Foto pesanan yang sudah tersimpan di server.
+/// Foto pesanan yang sudah tersimpan.
 ///
 /// Terpisah dari [PratinjauFotoLokal] karena sumbernya berbeda: yang ini
-/// diambil dari alamat HTTP milik backend, bukan dari berkas di perangkat.
+/// diambil dari alamat HTTP milik LaundryKu, bukan dari berkas di perangkat.
 class FotoDariServer extends StatelessWidget {
   const FotoDariServer({
     super.key,
@@ -155,8 +155,8 @@ class FotoDariServer extends StatelessWidget {
               ),
               SizedBox(height: Jarak.sm),
               Text(
-                'Foto ini tidak bisa ditampilkan. Berkasnya mungkin sudah '
-                'tidak ada di server.',
+                'Foto ini tidak bisa ditampilkan. Coba muat ulang halaman; '
+                'bila tetap gagal, foto sudah tidak tersedia.',
                 textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 12.5, color: Warna.teksKedua),
               ),

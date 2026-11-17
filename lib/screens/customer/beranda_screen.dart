@@ -320,7 +320,8 @@ class BerandaScreenState extends State<BerandaScreen> {
           ),
           SizedBox(height: Jarak.xs),
           Text(
-            'Harga per kilogram dan estimasi pengerjaan sesuai data server.',
+            'Harga per kilogram dan estimasi pengerjaan yang berlaku '
+            'di LaundryKu.',
             style: TextStyle(
               fontSize: 13,
               color: Warna.teksKedua,

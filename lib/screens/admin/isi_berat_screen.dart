@@ -128,7 +128,7 @@ class _IsiBeratScreenState extends State<IsiBeratScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
                     const Text(
-                      'Total biaya dihitung server',
+                      'Total biaya',
                       style: TextStyle(
                         fontSize: 12,
                         color: Warna.teksKedua,
@@ -229,9 +229,7 @@ class _IsiBeratScreenState extends State<IsiBeratScreen> {
                 hintText: 'Contoh: 3.7',
                 suffixText: 'kg',
                 prefixIcon: Icon(Icons.scale_rounded),
-                helperText:
-                    'Berat hasil penimbangan pakaian. Total biaya akan '
-                    'dihitung server.',
+                helperText: 'Berat hasil penimbangan pakaian.',
               ),
               validator: Validasi.beratAktual,
               onChanged: (_) => setState(() {}),
@@ -311,8 +309,8 @@ class _IsiBeratScreenState extends State<IsiBeratScreen> {
           ),
           const SizedBox(height: Jarak.sm),
           const Text(
-            'Angka sah adalah total biaya yang dihitung server setelah berat '
-            'disimpan.',
+            'Angka di atas baru perkiraan. Setelah disimpan, total biaya '
+            'pesanan memakai berat ini.',
             style: TextStyle(
               fontSize: 12,
               color: Warna.teksSamar,

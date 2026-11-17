@@ -1,7 +1,5 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-import '../../config/api_config.dart';
 import '../../config/app_theme.dart';
 import '../../services/api_client.dart';
 import '../../services/auth_service.dart';
@@ -240,25 +238,6 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
 
                     const SizedBox(height: Jarak.lg),
-
-                    // Alamat server hanya ditampilkan pada build debug, supaya
-                    // kesalahan konfigurasi (mis. lupa menjalankan backend)
-                    // langsung terlihat saat pengembangan. Pada aplikasi yang
-                    // sudah dibagikan, teks ini tidak berguna bagi pengguna.
-                    if (kDebugMode) ...<Widget>[
-                      const Divider(),
-                      const SizedBox(height: Jarak.md),
-                      Center(
-                        child: Text(
-                          ApiConfig.baseUrl,
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            fontSize: 11.5,
-                            color: Warna.teksSamar,
-                          ),
-                        ),
-                      ),
-                    ],
                   ],
                 ),
               ),

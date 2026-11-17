@@ -8,9 +8,9 @@ import 'pratinjau_foto_lokal.dart';
 
 /// Pemilih foto pakaian, dipakai pelanggan maupun admin.
 ///
-/// Widget ini hanya mengurus pemilihan dan pratinjau berkas. Pengunggahan ke
-/// server dilakukan pemanggilnya, karena butuh id pesanan dan hanya bisa
-/// dilakukan setelah pesanan ada.
+/// Widget ini hanya mengurus pemilihan dan pratinjau berkas. Pengunggahannya
+/// dilakukan pemanggilnya, karena butuh id pesanan dan hanya bisa dilakukan
+/// setelah pesanan ada.
 class PemilihFoto extends StatelessWidget {
   const PemilihFoto({
     super.key,
@@ -25,7 +25,7 @@ class PemilihFoto extends StatelessWidget {
   /// Berkas yang baru dipilih pengguna dan belum diunggah.
   final XFile? fotoTerpilih;
 
-  /// Alamat foto yang sudah tersimpan di server, bila ada.
+  /// Alamat foto yang sudah tersimpan, bila ada.
   final String? alamatFotoTersimpan;
 
   final VoidCallback onPilih;
@@ -93,7 +93,7 @@ class PemilihFoto extends StatelessWidget {
           if (fotoTerpilih != null) ...<Widget>[
             const SizedBox(height: Jarak.sm),
             const Text(
-              'Foto ini masih di perangkat Anda dan belum terkirim ke server.',
+              'Pratinjau foto yang akan dilampirkan pada pesanan Anda.',
               style: TextStyle(fontSize: 12, color: Warna.teksSamar),
             ),
           ],

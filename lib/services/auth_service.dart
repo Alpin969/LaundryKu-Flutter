@@ -109,7 +109,7 @@ class AuthService extends ChangeNotifier {
     final String? token = data['token'] as String?;
     if (token == null || token.isEmpty) {
       throw ApiException(
-        'Server tidak mengirim token login. Hubungi admin.',
+        'Proses masuk belum selesai. Coba lagi sebentar lagi.',
         kode: 'TOKEN_TIDAK_ADA',
       );
     }
@@ -142,7 +142,7 @@ class AuthService extends ChangeNotifier {
     final String? token = data['token'] as String?;
     if (token == null || token.isEmpty) {
       throw ApiException(
-        'Registrasi berhasil, tetapi server tidak mengirim token. Silakan login.',
+        'Pendaftaran berhasil, tetapi sesi Anda belum aktif. Silakan masuk.',
         kode: 'TOKEN_TIDAK_ADA',
       );
     }
@@ -197,6 +197,38 @@ class AuthService extends ChangeNotifier {
     } on ApiException {
       // Gagal menyegarkan tidak boleh mengganggu; data lama tetap dipakai.
     }
+  }
+
+  /// Mengubah nama akun, dan bila diisi sekaligus mengganti kata sandi.
+  ///
+  /// Penggantian kata sandi wajib menyertakan kata sandi lama; backend yang
+  /// memeriksanya, sehingga token yang tercuri tidak cukup untuk mengunci
+  /// pemilik akun dari luar.
+  Future<User> ubahProfil({
+    required String nama,
+    String? sandiLama,
+    String? sandiBaru,
+  }) async {
+    final Map<String, dynamic> body = <String, dynamic>{'name': nama.trim()};
+
+    if (sandiBaru != null) {
+      body['current_password'] = sandiLama;
+      body['new_password'] = sandiBaru;
+    }
+
+    final dynamic data = await ApiClient.instance.patch(
+      '/api/auth/me',
+      body: body,
+    );
+
+    final User akun = User.dariJson(
+      Map<String, dynamic>.from(data['user'] as Map),
+    );
+
+    _pengguna = akun;
+    notifyListeners();
+
+    return akun;
   }
 
   Future<void> _akhiriSesiKarenaToken() async {

@@ -10,10 +10,10 @@ import '../../widgets/tampilan_status.dart';
 /// Ditampilkan selama aplikasi memeriksa token yang tersimpan. Hasilnya
 /// menentukan apakah pengguna langsung masuk atau harus login lebih dulu.
 ///
-/// Halaman ini sengaja tidak punya tombol "Coba Lagi": bila pemeriksaan gagal
-/// karena server tidak bisa dihubungi, aplikasi langsung berpindah ke halaman
-/// login yang menyebutkan alamat server dan penyebabnya. Menahan pengguna di
-/// halaman pembuka hanya membuat mereka menunggu tanpa bisa berbuat apa-apa.
+/// Halaman ini sengaja tidak punya tombol "Coba Lagi": bila pemeriksaan gagal,
+/// aplikasi langsung berpindah ke halaman login yang menjelaskan penyebabnya.
+/// Menahan pengguna di halaman pembuka hanya membuat mereka menunggu tanpa
+/// bisa berbuat apa-apa.
 class SplashScreen extends StatelessWidget {
   const SplashScreen({super.key});
 

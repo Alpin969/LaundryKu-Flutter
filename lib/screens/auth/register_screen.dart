@@ -8,10 +8,8 @@ import '../../widgets/pesan_ui.dart';
 
 /// Pendaftaran akun pelanggan baru.
 ///
-/// Form ini sengaja tidak punya pilihan role. Backend selalu membuat akun
-/// baru sebagai CUSTOMER, karena kalau role boleh dikirim dari aplikasi siapa
-/// pun bisa mendaftar sebagai admin. Akun admin hanya dibuat lewat skrip
-/// `npm run create-admin` di backend.
+/// Form ini tidak punya pilihan role: setiap akun baru dari aplikasi selalu
+/// berperan pelanggan. Akun admin hanya dibuat oleh pengelola LaundryKu.
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
 
@@ -63,6 +61,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
       _modeValidasi = AutovalidateMode.onUserInteraction;
     });
 
+    // Navigator dan ScaffoldMessenger ditangkap lebih dulu: halaman ini ikut
+    // ditutup begitu pendaftaran berhasil, sehingga context miliknya sudah
+    // tidak berlaku lagi saat pesan keberhasilan ditampilkan.
+    final NavigatorState navigator = Navigator.of(context);
+    final ScaffoldMessengerState messenger = ScaffoldMessenger.of(context);
+
     try {
       await AuthService.instance.daftar(
         nama: _nama.text,
@@ -70,11 +74,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
         password: _password.text,
       );
 
-      if (!mounted) return;
-      // Backend langsung mengirim token, jadi pengguna sudah masuk. Gerbang
-      // aplikasi akan menutup halaman ini sendiri.
-      tampilkanPesan(
-        context,
+      // Pendaftaran langsung memberi sesi yang sah, jadi halaman ini harus
+      // ditutup supaya pengguna benar-benar melihat beranda pelanggan.
+      //
+      // popUntil dipakai, bukan pop: halaman ini dibuka lewat Navigator.push
+      // di atas halaman login, sedangkan beranda berada pada rute pertama.
+      // Tanpa popUntil, formulir pendaftaran tetap menutupi beranda dan
+      // pengguna merasa pendaftarannya tidak berhasil.
+      navigator.popUntil((Route<dynamic> rute) => rute.isFirst);
+
+      tampilkanPesanLewat(
+        messenger,
         'Pendaftaran berhasil. Selamat datang di LaundryKu.',
         jenis: JenisPesan.sukses,
       );
@@ -151,8 +161,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           SizedBox(width: Jarak.sm),
                           Expanded(
                             child: Text(
-                              'Pendaftaran hanya untuk akun pelanggan. '
-                              'Akun admin dibuat oleh pengelola sistem.',
+                              'Pendaftaran ini untuk akun pelanggan. Akun '
+                              'petugas laundry diberikan oleh pengelola.',
                               style: TextStyle(
                                 fontSize: 12.5,
                                 color: Warna.primaryGelap,
@@ -179,7 +189,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       autofillHints: const <String>[AutofillHints.name],
                       decoration: const InputDecoration(
                         labelText: 'Nama lengkap',
-                        hintText: 'Contoh: Alvin Pratama',
+                        hintText: 'Nama sesuai identitas Anda',
                         prefixIcon: Icon(Icons.person_outline_rounded),
                       ),
                       validator: Validasi.namaLengkap,
