@@ -150,27 +150,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         color: Warna.aksenLembut,
                         borderRadius: BorderRadius.circular(Sudut.kolomIsian),
                       ),
-                      child: const Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Icon(
-                            Icons.info_outline_rounded,
-                            size: 18,
-                            color: Warna.primary,
-                          ),
-                          SizedBox(width: Jarak.sm),
-                          Expanded(
-                            child: Text(
-                              'Pendaftaran ini untuk akun pelanggan. Akun '
-                              'petugas laundry diberikan oleh pengelola.',
-                              style: TextStyle(
-                                fontSize: 12.5,
-                                color: Warna.primaryGelap,
-                                height: 1.5,
-                              ),
-                            ),
-                          ),
-                        ],
+                      child: const Text(
+                        'Pendaftaran ini untuk akun pelanggan. Akun '
+                        'petugas laundry diberikan oleh pengelola.',
+                        style: TextStyle(
+                          fontSize: 12.5,
+                          color: Warna.primaryGelap,
+                          height: 1.5,
+                        ),
                       ),
                     ),
 
@@ -190,7 +177,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       decoration: const InputDecoration(
                         labelText: 'Nama lengkap',
                         hintText: 'Nama sesuai identitas Anda',
-                        prefixIcon: Icon(Icons.person_outline_rounded),
                       ),
                       validator: Validasi.namaLengkap,
                       onFieldSubmitted: (_) => _fokusEmail.requestFocus(),
@@ -208,7 +194,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       decoration: const InputDecoration(
                         labelText: 'Email',
                         hintText: 'nama@email.com',
-                        prefixIcon: Icon(Icons.mail_outline_rounded),
                       ),
                       validator: Validasi.email,
                       onFieldSubmitted: (_) => _fokusPassword.requestFocus(),
@@ -226,7 +211,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         labelText: 'Kata sandi',
                         helperText:
                             'Minimal ${Validasi.panjangPasswordMin} karakter.',
-                        prefixIcon: const Icon(Icons.lock_outline_rounded),
                         suffixIcon: IconButton(
                           onPressed: () => setState(
                             () => _passwordTersembunyi = !_passwordTersembunyi,
@@ -255,7 +239,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       textInputAction: TextInputAction.done,
                       decoration: InputDecoration(
                         labelText: 'Konfirmasi kata sandi',
-                        prefixIcon: const Icon(Icons.lock_reset_rounded),
                         suffixIcon: IconButton(
                           onPressed: () => setState(
                             () => _konfirmasiTersembunyi =
@@ -337,26 +320,13 @@ class _KotakGagal extends StatelessWidget {
         color: Warna.bahayaMuda,
         borderRadius: BorderRadius.circular(Sudut.kolomIsian),
       ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          const Icon(
-            Icons.error_outline_rounded,
-            size: 18,
-            color: Warna.bahaya,
-          ),
-          const SizedBox(width: Jarak.sm),
-          Expanded(
-            child: Text(
-              pesan,
-              style: const TextStyle(
-                fontSize: 13,
-                color: Warna.bahaya,
-                height: 1.5,
-              ),
-            ),
-          ),
-        ],
+      child: Text(
+        pesan,
+        style: const TextStyle(
+          fontSize: 13,
+          color: Warna.bahaya,
+          height: 1.5,
+        ),
       ),
     );
   }

@@ -5,8 +5,8 @@ import '../models/status_pesanan.dart';
 
 /// Lencana status pesanan.
 ///
-/// Warna dan ikon selalu berpasangan, jadi status tetap bisa dibedakan oleh
-/// pengguna yang sulit membedakan warna.
+/// Status dikenali dari tulisannya, bukan dari warnanya saja, jadi pengguna
+/// yang sulit membedakan warna tetap bisa membacanya.
 class LencanaStatus extends StatelessWidget {
   const LencanaStatus({super.key, required this.status, this.ringkas = false});
 
@@ -29,8 +29,6 @@ class LencanaStatus extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
-          Icon(status.ikon, size: ringkas ? 13 : 15, color: status.warnaTeks),
-          SizedBox(width: ringkas ? 4 : 6),
           Text(
             status.label,
             style: TextStyle(
@@ -73,21 +71,9 @@ class TahapanPesanan extends StatelessWidget {
           color: Warna.bahayaMuda,
           borderRadius: BorderRadius.circular(Sudut.kartu),
         ),
-        child: const Row(
-          children: <Widget>[
-            Icon(Icons.cancel_rounded, size: 20, color: Warna.bahaya),
-            SizedBox(width: Jarak.md),
-            Expanded(
-              child: Text(
-                'Pesanan ini dibatalkan, jadi prosesnya tidak dilanjutkan.',
-                style: TextStyle(
-                  fontSize: 13,
-                  color: Warna.bahaya,
-                  height: 1.5,
-                ),
-              ),
-            ),
-          ],
+        child: const Text(
+          'Pesanan ini dibatalkan, jadi prosesnya tidak dilanjutkan.',
+          style: TextStyle(fontSize: 13, color: Warna.bahaya, height: 1.5),
         ),
       );
     }

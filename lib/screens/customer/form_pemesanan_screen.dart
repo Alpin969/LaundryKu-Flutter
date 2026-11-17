@@ -146,7 +146,7 @@ class _FormPemesananScreenState extends State<FormPemesananScreen> {
               child: ListView(
                 padding: const EdgeInsets.all(Jarak.xl),
                 children: <Widget>[
-                  _langkahNomor('1', 'Pilih layanan'),
+                  _judulBagian('Pilih layanan'),
                   const SizedBox(height: Jarak.md),
 
                   if (_daftarLayanan.isEmpty)
@@ -162,7 +162,6 @@ class _FormPemesananScreenState extends State<FormPemesananScreen> {
                       isExpanded: true,
                       decoration: const InputDecoration(
                         labelText: 'Layanan',
-                        prefixIcon: Icon(Icons.local_laundry_service_rounded),
                       ),
                       // Kolom tertutup hanya menampilkan nama layanan. Kalau
                       // harga ikut ditulis di sini, nama layanan yang panjang
@@ -203,7 +202,7 @@ class _FormPemesananScreenState extends State<FormPemesananScreen> {
                   ],
 
                   const SizedBox(height: Jarak.xl),
-                  _langkahNomor('2', 'Isi berat perkiraan'),
+                  _judulBagian('Isi berat perkiraan'),
                   const SizedBox(height: Jarak.md),
 
                   TextFormField(
@@ -216,16 +215,18 @@ class _FormPemesananScreenState extends State<FormPemesananScreen> {
                       labelText: 'Berat perkiraan',
                       hintText: 'Contoh: 3.5',
                       suffixText: 'kg',
-                      prefixIcon: Icon(Icons.scale_rounded),
                       helperText:
                           'Perkiraan saja. Admin akan menimbang berat '
                           'sebenarnya saat pakaian diterima.',
+                      // Dua baris supaya kalimatnya tidak terpotong elipsis di
+                      // layar ponsel sempit.
+                      helperMaxLines: 2,
                     ),
                     validator: Validasi.beratPerkiraan,
                   ),
 
                   const SizedBox(height: Jarak.xl),
-                  _langkahNomor('3', 'Foto pakaian (opsional)'),
+                  _judulBagian('Foto pakaian (opsional)'),
                   const SizedBox(height: Jarak.sm),
                   Text(
                     keteranganBatasFoto(),
@@ -247,10 +248,9 @@ class _FormPemesananScreenState extends State<FormPemesananScreen> {
 
                   const SizedBox(height: Jarak.xl),
 
-                  FilledButton.icon(
+                  FilledButton(
                     onPressed: _daftarLayanan.isEmpty ? null : _lanjut,
-                    icon: const Icon(Icons.arrow_forward_rounded, size: 20),
-                    label: const Text('Lanjut ke Konfirmasi'),
+                    child: const Text('Lanjut ke Konfirmasi'),
                   ),
 
                   const SizedBox(height: Jarak.lg),
@@ -260,36 +260,14 @@ class _FormPemesananScreenState extends State<FormPemesananScreen> {
     );
   }
 
-  Widget _langkahNomor(String nomor, String judul) {
-    return Row(
-      children: <Widget>[
-        Container(
-          width: 26,
-          height: 26,
-          alignment: Alignment.center,
-          decoration: const BoxDecoration(
-            color: Warna.aksen,
-            shape: BoxShape.circle,
-          ),
-          child: Text(
-            nomor,
-            style: const TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-              color: Warna.primary,
-            ),
-          ),
-        ),
-        const SizedBox(width: Jarak.md),
-        Text(
-          judul,
-          style: const TextStyle(
-            fontSize: 15,
-            fontWeight: FontWeight.w600,
-            color: Warna.teksUtama,
-          ),
-        ),
-      ],
+  Widget _judulBagian(String judul) {
+    return Text(
+      judul,
+      style: const TextStyle(
+        fontSize: 15,
+        fontWeight: FontWeight.w600,
+        color: Warna.teksUtama,
+      ),
     );
   }
 
@@ -385,26 +363,13 @@ class _FormPemesananScreenState extends State<FormPemesananScreen> {
         color: Warna.peringatanMuda,
         borderRadius: BorderRadius.circular(Sudut.kartu),
       ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          const Icon(
-            Icons.info_outline_rounded,
-            size: 20,
-            color: Warna.peringatan,
-          ),
-          const SizedBox(width: Jarak.md),
-          Expanded(
-            child: Text(
-              pesan,
-              style: const TextStyle(
-                fontSize: 13,
-                color: Warna.peringatan,
-                height: 1.55,
-              ),
-            ),
-          ),
-        ],
+      child: Text(
+        pesan,
+        style: const TextStyle(
+          fontSize: 13,
+          color: Warna.peringatan,
+          height: 1.55,
+        ),
       ),
     );
   }

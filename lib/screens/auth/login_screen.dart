@@ -165,7 +165,6 @@ class _LoginScreenState extends State<LoginScreen> {
                       decoration: const InputDecoration(
                         labelText: 'Email',
                         hintText: 'nama@email.com',
-                        prefixIcon: Icon(Icons.mail_outline_rounded),
                       ),
                       validator: Validasi.email,
                       onFieldSubmitted: (_) =>
@@ -183,7 +182,6 @@ class _LoginScreenState extends State<LoginScreen> {
                       autofillHints: const <String>[AutofillHints.password],
                       decoration: InputDecoration(
                         labelText: 'Kata sandi',
-                        prefixIcon: const Icon(Icons.lock_outline_rounded),
                         suffixIcon: IconButton(
                           onPressed: () => setState(
                             () => _passwordTersembunyi = !_passwordTersembunyi,
@@ -264,22 +262,13 @@ class _KotakPesan extends StatelessWidget {
         color: Warna.bahayaMuda,
         borderRadius: BorderRadius.circular(Sudut.kolomIsian),
       ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          const Icon(Icons.error_outline_rounded, size: 18, color: Warna.bahaya),
-          const SizedBox(width: Jarak.sm),
-          Expanded(
-            child: Text(
-              pesan,
-              style: const TextStyle(
-                fontSize: 13,
-                color: Warna.bahaya,
-                height: 1.5,
-              ),
-            ),
-          ),
-        ],
+      child: Text(
+        pesan,
+        style: const TextStyle(
+          fontSize: 13,
+          color: Warna.bahaya,
+          height: 1.5,
+        ),
       ),
     );
   }

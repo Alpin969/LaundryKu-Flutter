@@ -78,7 +78,6 @@ class _ProfilScreenState extends State<ProfilScreen> {
 
           KartuBagian(
             judul: 'Informasi Akun',
-            ikon: Icons.badge_outlined,
             aksi: IconButton(
               onPressed: _sedangMuatUlang ? null : _muatUlang,
               tooltip: 'Muat ulang data akun',
@@ -121,17 +120,15 @@ class _ProfilScreenState extends State<ProfilScreen> {
 
           const SizedBox(height: Jarak.lg),
 
-          FilledButton.icon(
+          FilledButton(
             onPressed: _bukaUbahProfil,
-            icon: const Icon(Icons.manage_accounts_outlined, size: 20),
-            label: const Text('Ubah Profil'),
+            child: const Text('Ubah Profil'),
           ),
 
           const SizedBox(height: Jarak.xl),
 
           KartuBagian(
             judul: 'Tentang Aplikasi',
-            ikon: Icons.info_outline_rounded,
             anak: Column(
               children: <Widget>[
                 const BarisDetail(label: 'Aplikasi', nilai: 'LaundryKu'),
@@ -151,11 +148,10 @@ class _ProfilScreenState extends State<ProfilScreen> {
 
           const SizedBox(height: Jarak.xl),
 
-          OutlinedButton.icon(
+          OutlinedButton(
             onPressed: _keluar,
             style: OutlinedButton.styleFrom(foregroundColor: Warna.bahaya),
-            icon: const Icon(Icons.logout_rounded, size: 20),
-            label: const Text('Keluar'),
+            child: const Text('Keluar'),
           ),
 
           const SizedBox(height: Jarak.lg),

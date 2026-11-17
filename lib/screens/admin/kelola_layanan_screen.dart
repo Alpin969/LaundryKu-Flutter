@@ -187,7 +187,6 @@ class KelolaLayananScreenState extends State<KelolaLayananScreen> {
                 pesan:
                     'Tambahkan layanan pertama supaya pelanggan bisa memesan. '
                     'Isi nama, harga per kg, dan estimasi pengerjaannya.',
-                ikon: Icons.local_laundry_service_rounded,
               ),
             )
           else
@@ -212,36 +211,25 @@ class KelolaLayananScreenState extends State<KelolaLayananScreen> {
                     aksi: Row(
                       children: <Widget>[
                         Expanded(
-                          child: OutlinedButton.icon(
+                          child: OutlinedButton(
                             onPressed: _idSedangDikerjakan != null
                                 ? null
                                 : () => _ubah(layanan),
-                            icon: const Icon(Icons.edit_rounded, size: 18),
-                            label: const Text('Edit'),
+                            child: const Text('Edit'),
                           ),
                         ),
                         const SizedBox(width: Jarak.md),
                         Expanded(
-                          child: OutlinedButton.icon(
+                          child: OutlinedButton(
                             onPressed: _idSedangDikerjakan != null
                                 ? null
                                 : () => _hapus(layanan),
                             style: OutlinedButton.styleFrom(
                               foregroundColor: Warna.bahaya,
                             ),
-                            icon: sedangDikerjakan
-                                ? const SizedBox(
-                                    width: 16,
-                                    height: 16,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                    ),
-                                  )
-                                : const Icon(
-                                    Icons.delete_outline_rounded,
-                                    size: 18,
-                                  ),
-                            label: const Text('Hapus'),
+                            child: Text(
+                              sedangDikerjakan ? 'Menghapus...' : 'Hapus',
+                            ),
                           ),
                         ),
                       ],
@@ -259,10 +247,9 @@ class KelolaLayananScreenState extends State<KelolaLayananScreen> {
   Widget _tombolTambah() {
     return Padding(
       padding: const EdgeInsets.fromLTRB(Jarak.xl, 0, Jarak.xl, Jarak.lg),
-      child: FilledButton.icon(
+      child: FilledButton(
         onPressed: _idSedangDikerjakan != null ? null : _tambah,
-        icon: const Icon(Icons.add_rounded, size: 20),
-        label: const Text('Tambah Layanan'),
+        child: const Text('Tambah Layanan'),
       ),
     );
   }

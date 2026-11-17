@@ -174,25 +174,15 @@ class BerandaScreenState extends State<BerandaScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            Row(
-              children: <Widget>[
-                const Icon(
-                  Icons.local_laundry_service_rounded,
-                  size: 18,
-                  color: Colors.white,
-                ),
-                const SizedBox(width: Jarak.sm),
-                Text(
-                  _memuat
-                      ? 'Memuat pesanan...'
-                      : '${_pesananAktif.length} pesanan aktif',
-                  style: const TextStyle(
-                    fontSize: 13.5,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
-                  ),
-                ),
-              ],
+            Text(
+              _memuat
+                  ? 'Memuat pesanan...'
+                  : '${_pesananAktif.length} pesanan aktif',
+              style: const TextStyle(
+                fontSize: 13.5,
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
+              ),
             ),
             if (!_memuat && _pesananAktif.isNotEmpty) ...<Widget>[
               const SizedBox(height: Jarak.lg),
@@ -267,16 +257,14 @@ class BerandaScreenState extends State<BerandaScreen> {
       padding: const EdgeInsets.fromLTRB(Jarak.xl, Jarak.lg, Jarak.xl, 0),
       child: Column(
         children: <Widget>[
-          FilledButton.icon(
+          FilledButton(
             onPressed: _pesanLaundry,
-            icon: const Icon(Icons.add_shopping_cart_rounded, size: 20),
-            label: const Text('Pesan Laundry'),
+            child: const Text('Pesan Laundry'),
           ),
           const SizedBox(height: Jarak.md),
-          OutlinedButton.icon(
+          OutlinedButton(
             onPressed: _lihatLayanan,
-            icon: const Icon(Icons.list_alt_rounded, size: 20),
-            label: const Text('Lihat Daftar Layanan'),
+            child: const Text('Lihat Daftar Layanan'),
           ),
         ],
       ),
@@ -363,22 +351,10 @@ class BerandaScreenState extends State<BerandaScreen> {
             borderRadius: BorderRadius.circular(Sudut.kartu),
             border: Border.all(color: Warna.garis),
           ),
-          child: const Row(
-            children: <Widget>[
-              Icon(
-                Icons.local_laundry_service_outlined,
-                size: 22,
-                color: Warna.teksSamar,
-              ),
-              SizedBox(width: Jarak.md),
-              Expanded(
-                child: Text(
-                  'Belum ada layanan yang bisa dipesan. Coba muat ulang '
-                  'sebentar lagi.',
-                  style: TextStyle(fontSize: 13.5, color: Warna.teksKedua),
-                ),
-              ),
-            ],
+          child: const Text(
+            'Belum ada layanan yang bisa dipesan. Coba muat ulang '
+            'sebentar lagi.',
+            style: TextStyle(fontSize: 13.5, color: Warna.teksKedua),
           ),
         ),
       );
@@ -401,10 +377,9 @@ class BerandaScreenState extends State<BerandaScreen> {
           padding: const EdgeInsets.symmetric(horizontal: Jarak.xl),
           child: SizedBox(
             width: double.infinity,
-            child: TextButton.icon(
+            child: TextButton(
               onPressed: _lihatLayanan,
-              icon: const Icon(Icons.list_alt_rounded, size: 20),
-              label: Text(
+              child: Text(
                 _layanan.length > tampil.length
                     ? 'Lihat semua layanan (${_layanan.length})'
                     : 'Lihat halaman layanan',
@@ -543,15 +518,6 @@ class BerandaScreenState extends State<BerandaScreen> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Container(
-            padding: const EdgeInsets.all(Jarak.sm),
-            decoration: BoxDecoration(
-              color: status.warnaLatar,
-              borderRadius: BorderRadius.circular(Jarak.sm),
-            ),
-            child: Icon(status.ikon, size: 17, color: status.warnaTeks),
-          ),
-          const SizedBox(width: Jarak.md),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -594,17 +560,9 @@ class _KotakKosongPesanan extends StatelessWidget {
         borderRadius: BorderRadius.circular(Sudut.kartu),
         border: Border.all(color: Warna.garis),
       ),
-      child: const Row(
-        children: <Widget>[
-          Icon(Icons.inbox_rounded, size: 22, color: Warna.teksSamar),
-          SizedBox(width: Jarak.md),
-          Expanded(
-            child: Text(
-              'Tidak ada pesanan aktif saat ini.',
-              style: TextStyle(fontSize: 13.5, color: Warna.teksKedua),
-            ),
-          ),
-        ],
+      child: const Text(
+        'Tidak ada pesanan aktif saat ini.',
+        style: TextStyle(fontSize: 13.5, color: Warna.teksKedua),
       ),
     );
   }

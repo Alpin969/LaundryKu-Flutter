@@ -151,26 +151,13 @@ class _UbahProfilScreenState extends State<UbahProfilScreen> {
                   color: Warna.bahayaMuda,
                   borderRadius: BorderRadius.circular(Sudut.kolomIsian),
                 ),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    const Icon(
-                      Icons.error_outline_rounded,
-                      size: 18,
-                      color: Warna.bahaya,
-                    ),
-                    const SizedBox(width: Jarak.sm),
-                    Expanded(
-                      child: Text(
-                        _pesanGagal!,
-                        style: const TextStyle(
-                          fontSize: 13,
-                          color: Warna.bahaya,
-                          height: 1.5,
-                        ),
-                      ),
-                    ),
-                  ],
+                child: Text(
+                  _pesanGagal!,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    color: Warna.bahaya,
+                    height: 1.5,
+                  ),
                 ),
               ),
             ],
@@ -185,7 +172,6 @@ class _UbahProfilScreenState extends State<UbahProfilScreen> {
               autofillHints: const <String>[AutofillHints.name],
               decoration: const InputDecoration(
                 labelText: 'Nama lengkap',
-                prefixIcon: Icon(Icons.person_outline_rounded),
               ),
               validator: Validasi.namaLengkap,
             ),
@@ -195,7 +181,6 @@ class _UbahProfilScreenState extends State<UbahProfilScreen> {
             InputDecorator(
               decoration: const InputDecoration(
                 labelText: 'Email',
-                prefixIcon: Icon(Icons.mail_outline_rounded),
               ),
               child: Text(
                 email == null || email.isEmpty ? '-' : email,
@@ -257,7 +242,6 @@ class _UbahProfilScreenState extends State<UbahProfilScreen> {
                 textInputAction: TextInputAction.next,
                 decoration: const InputDecoration(
                   labelText: 'Kata sandi saat ini',
-                  prefixIcon: Icon(Icons.lock_outline_rounded),
                 ),
                 validator: _validasiSandiLama,
                 onFieldSubmitted: (_) => _fokusSandiBaru.requestFocus(),
@@ -275,7 +259,6 @@ class _UbahProfilScreenState extends State<UbahProfilScreen> {
                   labelText: 'Kata sandi baru',
                   helperText:
                       'Minimal ${Validasi.panjangPasswordMin} karakter.',
-                  prefixIcon: const Icon(Icons.lock_reset_rounded),
                   suffixIcon: IconButton(
                     onPressed: () => setState(
                       () => _sandiTersembunyi = !_sandiTersembunyi,
@@ -304,7 +287,6 @@ class _UbahProfilScreenState extends State<UbahProfilScreen> {
                 textInputAction: TextInputAction.done,
                 decoration: const InputDecoration(
                   labelText: 'Ulangi kata sandi baru',
-                  prefixIcon: Icon(Icons.lock_reset_rounded),
                 ),
                 validator: _validasiKonfirmasi,
                 onFieldSubmitted: (_) => _simpan(),
@@ -313,9 +295,9 @@ class _UbahProfilScreenState extends State<UbahProfilScreen> {
 
             const SizedBox(height: Jarak.xxl),
 
-            FilledButton.icon(
+            FilledButton(
               onPressed: _sedangKirim ? null : _simpan,
-              icon: _sedangKirim
+              child: _sedangKirim
                   ? const SizedBox(
                       width: 20,
                       height: 20,
@@ -324,8 +306,7 @@ class _UbahProfilScreenState extends State<UbahProfilScreen> {
                         color: Colors.white,
                       ),
                     )
-                  : const Icon(Icons.save_rounded, size: 20),
-              label: Text(_sedangKirim ? 'Menyimpan...' : 'Simpan Perubahan'),
+                  : const Text('Simpan Perubahan'),
             ),
 
             const SizedBox(height: Jarak.md),

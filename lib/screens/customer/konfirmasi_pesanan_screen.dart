@@ -5,10 +5,12 @@ import '../../config/app_theme.dart';
 import '../../models/layanan.dart';
 import '../../models/pesanan.dart';
 import '../../services/api_client.dart';
-import '../../services/pesanan_service.dart';import '../../utils/format.dart';
+import '../../services/pesanan_service.dart';
+import '../../utils/format.dart';
 import '../../widgets/pesan_ui.dart';
 import '../../widgets/pratinjau_foto_lokal.dart';
 import 'detail_pesanan_screen.dart';
+
 /// Konfirmasi sebelum pesanan benar-benar dikirim ke server.
 ///
 /// Di sinilah satu-satunya permintaan pembuatan pesanan dilakukan
@@ -27,7 +29,8 @@ class KonfirmasiPesananScreen extends StatefulWidget {
   final XFile? foto;
 
   @override
-  State<KonfirmasiPesananScreen> createState() => _KonfirmasiPesananScreenState();
+  State<KonfirmasiPesananScreen> createState() =>
+      _KonfirmasiPesananScreenState();
 }
 
 class _KonfirmasiPesananScreenState extends State<KonfirmasiPesananScreen> {
@@ -102,33 +105,23 @@ class _KonfirmasiPesananScreenState extends State<KonfirmasiPesananScreen> {
               color: Warna.aksenLembut,
               borderRadius: BorderRadius.circular(Sudut.kartu),
             ),
-            child: const Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Icon(Icons.info_outline_rounded, size: 20, color: Warna.primary),
-                SizedBox(width: Jarak.md),
-                Expanded(
-                  child: Text(
-                    'Total biaya final dihitung admin setelah pakaian '
-                    'ditimbang, memakai berat sebenarnya. Pesanan bisa '
-                    'dibatalkan selama masih menunggu konfirmasi atau sudah '
-                    'dikonfirmasi.',
-                    style: TextStyle(
-                      fontSize: 12.5,
-                      color: Warna.primaryGelap,
-                      height: 1.6,
-                    ),
-                  ),
-                ),
-              ],
+            child: const Text(
+              'Total biaya final dihitung admin setelah pakaian ditimbang, '
+              'memakai berat sebenarnya. Pesanan bisa dibatalkan selama '
+              'masih menunggu konfirmasi atau sudah dikonfirmasi.',
+              style: TextStyle(
+                fontSize: 12.5,
+                color: Warna.primaryGelap,
+                height: 1.6,
+              ),
             ),
           ),
 
           const SizedBox(height: Jarak.xl),
 
-          FilledButton.icon(
+          FilledButton(
             onPressed: _sedangKirim ? null : _kirim,
-            icon: _sedangKirim
+            child: _sedangKirim
                 ? const SizedBox(
                     width: 20,
                     height: 20,
@@ -137,8 +130,7 @@ class _KonfirmasiPesananScreenState extends State<KonfirmasiPesananScreen> {
                       color: Colors.white,
                     ),
                   )
-                : const Icon(Icons.check_rounded, size: 20),
-            label: Text(_sedangKirim ? 'Mengirim pesanan...' : 'Buat Pesanan'),
+                : const Text('Buat Pesanan'),
           ),
 
           const SizedBox(height: Jarak.md),
@@ -174,11 +166,7 @@ class _KonfirmasiPesananScreenState extends State<KonfirmasiPesananScreen> {
           const Divider(height: Jarak.xl, color: Warna.garis),
           _baris('Berat perkiraan', formatBerat(widget.beratPerkiraan)),
           const Divider(height: Jarak.xl, color: Warna.garis),
-          _baris(
-            'Perkiraan biaya',
-            formatRupiah(perkiraan),
-            tebal: true,
-          ),
+          _baris('Perkiraan biaya', formatRupiah(perkiraan), tebal: true),
         ],
       ),
     );
@@ -226,8 +214,8 @@ class _KonfirmasiPesananScreenState extends State<KonfirmasiPesananScreen> {
     String? galatFoto;
 
     try {
-      // Langkah 1: buat pesanannya. Harga tidak ikut dikirim; backend yang
-      // mengambilnya dari tabel services.
+      // Harga tidak ikut dikirim; backend yang mengambilnya dari tabel
+      // services.
       pesananBaru = await _pesananService.buat(
         serviceId: widget.layanan.id,
         estimatedWeight: widget.beratPerkiraan,
@@ -248,9 +236,9 @@ class _KonfirmasiPesananScreenState extends State<KonfirmasiPesananScreen> {
       return;
     }
 
-    // Langkah 2: unggah foto ke pesanan yang baru dibuat. Kalau langkah ini
-    // gagal, pesanannya TIDAK dibatalkan: pesanan sudah sah dibuat, dan foto
-    // hanya pelengkap. Pelanggan diberi tahu bahwa fotonya belum terkirim.
+    // Foto diunggah ke pesanan yang baru dibuat. Kalau gagal, pesanannya
+    // TIDAK dibatalkan: pesanan sudah sah dibuat, dan foto hanya pelengkap.
+    // Pelanggan diberi tahu bahwa fotonya belum terkirim.
     if (widget.foto != null) {
       try {
         pesananBaru = await _pesananService.unggahFoto(

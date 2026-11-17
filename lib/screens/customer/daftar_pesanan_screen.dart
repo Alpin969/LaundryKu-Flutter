@@ -99,14 +99,12 @@ class DaftarPesananScreenState extends State<DaftarPesananScreen> {
   Widget _penyaring() {
     // "Aktif" memakai lima status sekaligus, sedangkan pilihan lain menyaring
     // satu status saja.
-    final List<({StatusPesanan? nilai, String label})> pilihan = <({
-      StatusPesanan? nilai,
-      String label,
-    })>[
-      (nilai: null, label: 'Aktif'),
-      for (final StatusPesanan status in StatusPesanan.values)
-        (nilai: status, label: status.label),
-    ];
+    final List<({StatusPesanan? nilai, String label})> pilihan =
+        <({StatusPesanan? nilai, String label})>[
+          (nilai: null, label: 'Aktif'),
+          for (final StatusPesanan status in StatusPesanan.values)
+            (nilai: status, label: status.label),
+        ];
 
     return SizedBox(
       height: 58,
@@ -153,7 +151,6 @@ class DaftarPesananScreenState extends State<DaftarPesananScreen> {
             ? 'Pesanan yang masih berjalan akan muncul di sini. Buat pesanan '
                   'baru lewat tombol Pesan di beranda.'
             : 'Belum ada pesanan dengan status ini. Coba pilih penyaring lain.',
-        ikon: Icons.receipt_long_rounded,
         labelTombol: _saring == null ? null : 'Lihat pesanan aktif',
         onTombol: _saring == null ? null : () => terapkanSaring(null),
       );
@@ -163,7 +160,12 @@ class DaftarPesananScreenState extends State<DaftarPesananScreen> {
       onRefresh: muatUlang,
       child: ListView.separated(
         physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.fromLTRB(Jarak.xl, Jarak.sm, Jarak.xl, Jarak.xxl),
+        padding: const EdgeInsets.fromLTRB(
+          Jarak.xl,
+          Jarak.sm,
+          Jarak.xl,
+          Jarak.xxl,
+        ),
         itemCount: _pesanan.length,
         separatorBuilder: (_, _) => const SizedBox(height: Jarak.md),
         itemBuilder: (BuildContext context, int index) {
@@ -172,10 +174,8 @@ class DaftarPesananScreenState extends State<DaftarPesananScreen> {
           return KartuPesanan(
             pesanan: pesanan,
             tampilkanPelanggan: widget.tampilkanPelanggan,
-            onTap: () => bukaDetailPesanan(
-              context,
-              pesanan.id,
-            ).then((_) => muatUlang()),
+            onTap: () =>
+                bukaDetailPesanan(context, pesanan.id).then((_) => muatUlang()),
           );
         },
       ),

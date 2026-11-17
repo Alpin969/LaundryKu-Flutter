@@ -100,7 +100,6 @@ class _DaftarLayananScreenState extends State<DaftarLayananScreen> {
               textInputAction: TextInputAction.search,
               decoration: InputDecoration(
                 hintText: 'Cari layanan...',
-                prefixIcon: const Icon(Icons.search_rounded),
                 suffixIcon: _pencarian.text.isEmpty
                     ? null
                     : IconButton(
@@ -136,7 +135,6 @@ class _DaftarLayananScreenState extends State<DaftarLayananScreen> {
         pesan:
             'Admin belum menambahkan layanan laundry. Coba lagi beberapa saat '
             'lagi.',
-        ikon: Icons.local_laundry_service_rounded,
       );
     }
 
@@ -148,7 +146,6 @@ class _DaftarLayananScreenState extends State<DaftarLayananScreen> {
         pesan:
             'Tidak ada layanan yang cocok dengan "${_pencarian.text.trim()}". '
             'Coba kata kunci lain.',
-        ikon: Icons.search_off_rounded,
         labelTombol: 'Hapus pencarian',
         onTombol: () => _pencarian.clear(),
       );

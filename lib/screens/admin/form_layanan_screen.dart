@@ -126,7 +126,6 @@ class _FormLayananScreenState extends State<FormLayananScreen> {
               decoration: const InputDecoration(
                 labelText: 'Nama layanan',
                 hintText: 'Contoh: Cuci Kering Setrika',
-                prefixIcon: Icon(Icons.local_laundry_service_rounded),
               ),
               validator: Validasi.namaLayanan,
             ),
@@ -143,7 +142,6 @@ class _FormLayananScreenState extends State<FormLayananScreen> {
                 labelText: 'Harga per kg',
                 hintText: 'Contoh: 7500',
                 prefixText: 'Rp ',
-                prefixIcon: Icon(Icons.payments_outlined),
               ),
               validator: Validasi.hargaPerKg,
             ),
@@ -156,7 +154,6 @@ class _FormLayananScreenState extends State<FormLayananScreen> {
               decoration: const InputDecoration(
                 labelText: 'Estimasi pengerjaan',
                 hintText: 'Contoh: 3 hari',
-                prefixIcon: Icon(Icons.schedule_rounded),
                 helperText: 'Ditulis bebas, mis. "2 hari" atau "6 jam".',
               ),
               validator: Validasi.durasiLayanan,
@@ -178,10 +175,9 @@ class _FormLayananScreenState extends State<FormLayananScreen> {
 
             const SizedBox(height: Jarak.md),
 
-            FilledButton.icon(
+            FilledButton(
               onPressed: _simpan,
-              icon: const Icon(Icons.save_rounded, size: 20),
-              label: Text(_modeUbah ? 'Simpan Perubahan' : 'Tambah Layanan'),
+              child: Text(_modeUbah ? 'Simpan Perubahan' : 'Tambah Layanan'),
             ),
 
             const SizedBox(height: Jarak.md),

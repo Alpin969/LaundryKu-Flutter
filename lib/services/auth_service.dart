@@ -256,7 +256,7 @@ class AuthService extends ChangeNotifier {
     if (kembaliKeLogin) saatSesiKembaliKeLogin?.call();
   }
 
-  // ------------------------- Penyimpanan token -------------------------
+  // Penyimpanan token.
   //
   // flutter_secure_storage tidak tersedia di web. Di sana token disimpan di
   // memori saja, sehingga sesi hilang saat halaman dimuat ulang. Ini disengaja:

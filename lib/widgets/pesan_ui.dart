@@ -38,23 +38,17 @@ void _tampilkanLewat(
   String pesan,
   JenisPesan jenis,
 ) {
-  final (Color warna, IconData ikon) = switch (jenis) {
-    JenisPesan.sukses => (Warna.sukses, Icons.check_circle_rounded),
-    JenisPesan.gagal => (Warna.bahaya, Icons.error_rounded),
-    JenisPesan.info => (Warna.primary, Icons.info_rounded),
+  final Color warna = switch (jenis) {
+    JenisPesan.sukses => Warna.sukses,
+    JenisPesan.gagal => Warna.bahaya,
+    JenisPesan.info => Warna.primary,
   };
 
   messenger.showSnackBar(
     SnackBar(
       backgroundColor: warna,
       duration: const Duration(seconds: 4),
-      content: Row(
-        children: <Widget>[
-          Icon(ikon, size: 20, color: Colors.white),
-          const SizedBox(width: Jarak.md),
-          Expanded(child: Text(pesan)),
-        ],
-      ),
+      content: Text(pesan),
     ),
   );
 }
@@ -110,8 +104,7 @@ Future<bool> konfirmasi(
 Future<T?> pilihDariLembar<T>(
   BuildContext context, {
   required String judul,
-  required List<({T nilai, String label, IconData ikon, String? keterangan})>
-  pilihan,
+  required List<({T nilai, String label, String? keterangan})> pilihan,
 }) {
   return showModalBottomSheet<T>(
     context: context,
@@ -139,16 +132,9 @@ Future<T?> pilihDariLembar<T>(
                   ),
                 ),
               ),
-              for (final ({
-                    T nilai,
-                    String label,
-                    IconData ikon,
-                    String? keterangan,
-                  })
-                  item
+              for (final ({T nilai, String label, String? keterangan}) item
                   in pilihan)
                 ListTile(
-                  leading: Icon(item.ikon, color: Warna.primary),
                   title: Text(
                     item.label,
                     style: const TextStyle(

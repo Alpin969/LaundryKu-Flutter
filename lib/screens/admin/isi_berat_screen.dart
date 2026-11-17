@@ -187,7 +187,6 @@ class _IsiBeratScreenState extends State<IsiBeratScreen> {
           children: <Widget>[
             KartuBagian(
               judul: 'Pesanan #${pesanan.id}',
-              ikon: Icons.receipt_long_rounded,
               anak: Column(
                 children: <Widget>[
                   BarisDetail(label: 'Pelanggan', nilai: pesanan.namaPelanggan),
@@ -228,7 +227,6 @@ class _IsiBeratScreenState extends State<IsiBeratScreen> {
                 labelText: 'Berat aktual',
                 hintText: 'Contoh: 3.7',
                 suffixText: 'kg',
-                prefixIcon: Icon(Icons.scale_rounded),
                 helperText: 'Berat hasil penimbangan pakaian.',
               ),
               validator: Validasi.beratAktual,
@@ -242,9 +240,9 @@ class _IsiBeratScreenState extends State<IsiBeratScreen> {
 
             const SizedBox(height: Jarak.xl),
 
-            FilledButton.icon(
+            FilledButton(
               onPressed: _sedangKirim ? null : _simpan,
-              icon: _sedangKirim
+              child: _sedangKirim
                   ? const SizedBox(
                       width: 20,
                       height: 20,
@@ -253,8 +251,7 @@ class _IsiBeratScreenState extends State<IsiBeratScreen> {
                         color: Colors.white,
                       ),
                     )
-                  : const Icon(Icons.save_rounded, size: 20),
-              label: Text(_sedangKirim ? 'Menyimpan...' : 'Simpan Berat'),
+                  : const Text('Simpan Berat'),
             ),
 
             const SizedBox(height: Jarak.md),

@@ -296,7 +296,6 @@ class _DetailPesananScreenState extends State<DetailPesananScreen> {
   Widget _bagianStatus(Pesanan pesanan) {
     return KartuBagian(
       judul: 'Status Pesanan',
-      ikon: Icons.timeline_rounded,
       anak: TahapanPesanan(status: pesanan.status),
     );
   }
@@ -307,7 +306,6 @@ class _DetailPesananScreenState extends State<DetailPesananScreen> {
 
     return KartuBagian(
       judul: 'Foto Pakaian',
-      ikon: Icons.photo_camera_rounded,
       anak: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
@@ -372,7 +370,6 @@ class _DetailPesananScreenState extends State<DetailPesananScreen> {
   Widget _bagianPesanan(Pesanan pesanan) {
     return KartuBagian(
       judul: 'Rincian Pesanan',
-      ikon: Icons.receipt_long_rounded,
       anak: Column(
         children: <Widget>[
           BarisDetail(label: 'ID Pesanan', nilai: '#${pesanan.id}'),
@@ -403,7 +400,6 @@ class _DetailPesananScreenState extends State<DetailPesananScreen> {
   Widget _bagianBiaya(Pesanan pesanan) {
     return KartuBagian(
       judul: 'Biaya',
-      ikon: Icons.payments_rounded,
       anak: Column(
         children: <Widget>[
           BarisDetail(
@@ -439,7 +435,6 @@ class _DetailPesananScreenState extends State<DetailPesananScreen> {
   Widget _bagianPelanggan(Pesanan pesanan) {
     return KartuBagian(
       judul: 'Pelanggan',
-      ikon: Icons.person_rounded,
       anak: Column(
         children: <Widget>[
           BarisDetail(label: 'Nama', nilai: pesanan.namaPelanggan),
@@ -458,10 +453,9 @@ class _DetailPesananScreenState extends State<DetailPesananScreen> {
       // memindahkan status.
       if (!pesanan.status.sudahFinal) {
         tombol.add(
-          FilledButton.icon(
+          FilledButton(
             onPressed: _sedangKerja ? null : _bukaIsiBerat,
-            icon: const Icon(Icons.scale_rounded, size: 20),
-            label: Text(
+            child: Text(
               pesanan.beratAktual == null
                   ? 'Isi Berat Aktual'
                   : 'Ubah Berat Aktual',
@@ -473,10 +467,9 @@ class _DetailPesananScreenState extends State<DetailPesananScreen> {
       if (pesanan.status.berikutnya.isNotEmpty) {
         if (tombol.isNotEmpty) tombol.add(const SizedBox(height: Jarak.md));
         tombol.add(
-          OutlinedButton.icon(
+          OutlinedButton(
             onPressed: _sedangKerja ? null : _bukaUbahStatus,
-            icon: const Icon(Icons.sync_alt_rounded, size: 20),
-            label: const Text('Ubah Status Pesanan'),
+            child: const Text('Ubah Status Pesanan'),
           ),
         );
       }
@@ -484,11 +477,10 @@ class _DetailPesananScreenState extends State<DetailPesananScreen> {
       // Pelanggan: hanya boleh membatalkan, dan hanya pada tahap tertentu.
       if (pesanan.status.bolehDibatalkanCustomer) {
         tombol.add(
-          OutlinedButton.icon(
+          OutlinedButton(
             onPressed: _sedangKerja ? null : _batalkan,
             style: OutlinedButton.styleFrom(foregroundColor: Warna.bahaya),
-            icon: const Icon(Icons.cancel_outlined, size: 20),
-            label: const Text('Batalkan Pesanan'),
+            child: const Text('Batalkan Pesanan'),
           ),
         );
       } else if (!pesanan.status.sudahFinal) {
@@ -499,24 +491,15 @@ class _DetailPesananScreenState extends State<DetailPesananScreen> {
               color: Warna.aksenLembut,
               borderRadius: BorderRadius.circular(Sudut.kartu),
             ),
-            child: const Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Icon(Icons.info_outline_rounded, size: 20, color: Warna.primary),
-                SizedBox(width: Jarak.md),
-                Expanded(
-                  child: Text(
-                    'Pesanan yang sudah masuk proses pencucian tidak bisa '
-                    'dibatalkan sendiri. Hubungi admin bila perlu '
-                    'dibatalkan.',
-                    style: TextStyle(
-                      fontSize: 12.5,
-                      color: Warna.primaryGelap,
-                      height: 1.55,
-                    ),
-                  ),
-                ),
-              ],
+            child: const Text(
+              'Pesanan yang sudah masuk proses pencucian tidak bisa '
+              'dibatalkan sendiri. Hubungi admin bila perlu '
+              'dibatalkan.',
+              style: TextStyle(
+                fontSize: 12.5,
+                color: Warna.primaryGelap,
+                height: 1.55,
+              ),
             ),
           ),
         );

@@ -73,13 +73,11 @@ class KartuBagian extends StatelessWidget {
     super.key,
     required this.judul,
     required this.anak,
-    this.ikon,
     this.aksi,
   });
 
   final String judul;
   final Widget anak;
-  final IconData? ikon;
 
   /// Tombol kecil di kanan judul, mis. "Ubah".
   final Widget? aksi;
@@ -104,10 +102,6 @@ class KartuBagian extends StatelessWidget {
             ),
             child: Row(
               children: <Widget>[
-                if (ikon != null) ...<Widget>[
-                  Icon(ikon, size: 18, color: Warna.primary),
-                  const SizedBox(width: Jarak.sm),
-                ],
                 Expanded(
                   child: Text(
                     judul,

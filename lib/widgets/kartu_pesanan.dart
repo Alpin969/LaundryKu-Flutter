@@ -127,12 +127,6 @@ class KartuPesanan extends StatelessWidget {
               const SizedBox(height: Jarak.md),
               Row(
                 children: <Widget>[
-                  const Icon(
-                    Icons.event_rounded,
-                    size: 14,
-                    color: Warna.teksSamar,
-                  ),
-                  const SizedBox(width: 4),
                   Text(
                     formatWaktuLalu(pesanan.dibuatPada),
                     style: const TextStyle(
@@ -142,12 +136,6 @@ class KartuPesanan extends StatelessWidget {
                   ),
                   const Spacer(),
                   if (pesanan.adaFoto) ...<Widget>[
-                    const Icon(
-                      Icons.image_rounded,
-                      size: 14,
-                      color: Warna.teksSamar,
-                    ),
-                    const SizedBox(width: 4),
                     const Text(
                       'Ada foto',
                       style: TextStyle(fontSize: 12, color: Warna.teksSamar),

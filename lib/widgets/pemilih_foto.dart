@@ -71,21 +71,19 @@ class PemilihFoto extends StatelessWidget {
           Row(
             children: <Widget>[
               Expanded(
-                child: OutlinedButton.icon(
+                child: OutlinedButton(
                   onPressed: nonaktif ? null : onPilih,
-                  icon: const Icon(Icons.swap_horiz_rounded, size: 19),
-                  label: const Text('Ganti'),
+                  child: const Text('Ganti'),
                 ),
               ),
               const SizedBox(width: Jarak.md),
               Expanded(
-                child: OutlinedButton.icon(
+                child: OutlinedButton(
                   onPressed: nonaktif ? null : onHapus,
                   style: OutlinedButton.styleFrom(
                     foregroundColor: Warna.bahaya,
                   ),
-                  icon: const Icon(Icons.delete_outline_rounded, size: 19),
-                  label: const Text('Hapus'),
+                  child: const Text('Hapus'),
                 ),
               ),
             ],
@@ -127,8 +125,6 @@ class _KotakKosong extends StatelessWidget {
         ),
         child: const Column(
           children: <Widget>[
-            Icon(Icons.add_a_photo_outlined, size: 28, color: Warna.primary),
-            SizedBox(height: Jarak.md),
             Text(
               'Tambah foto pakaian',
               style: TextStyle(
@@ -163,22 +159,15 @@ Future<XFile?> ambilFoto(BuildContext context) async {
   final ImageSource? sumber = await pilihDariLembar<ImageSource>(
     context,
     judul: 'Ambil foto dari',
-    pilihan: <({
-      ImageSource nilai,
-      String label,
-      IconData ikon,
-      String? keterangan,
-    })>[
+    pilihan: <({ImageSource nilai, String label, String? keterangan})>[
       (
         nilai: ImageSource.camera,
         label: 'Kamera',
-        ikon: Icons.photo_camera_outlined,
         keterangan: 'Foto pakaian sekarang',
       ),
       (
         nilai: ImageSource.gallery,
         label: 'Galeri',
-        ikon: Icons.photo_library_outlined,
         keterangan: 'Pilih dari foto yang sudah ada',
       ),
     ],

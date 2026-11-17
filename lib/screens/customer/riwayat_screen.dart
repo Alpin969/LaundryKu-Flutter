@@ -112,7 +112,6 @@ class RiwayatScreenState extends State<RiwayatScreen> {
         pesan:
             'Pesanan yang sudah selesai atau dibatalkan akan tercatat di sini '
             'beserta rincian biayanya.',
-        ikon: Icons.history_rounded,
       );
     }
 

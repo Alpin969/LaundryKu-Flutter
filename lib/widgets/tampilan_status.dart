@@ -81,19 +81,6 @@ class TampilanGagal extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
-              Container(
-                padding: const EdgeInsets.all(Jarak.lg),
-                decoration: const BoxDecoration(
-                  color: Warna.bahayaMuda,
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  Icons.cloud_off_rounded,
-                  size: 30,
-                  color: Warna.bahaya,
-                ),
-              ),
-              const SizedBox(height: Jarak.lg),
               Text(
                 judul,
                 textAlign: TextAlign.center,
@@ -117,10 +104,9 @@ class TampilanGagal extends StatelessWidget {
                 const SizedBox(height: Jarak.xl),
                 SizedBox(
                   width: 200,
-                  child: FilledButton.icon(
+                  child: FilledButton(
                     onPressed: onCobaLagi,
-                    icon: const Icon(Icons.refresh_rounded, size: 20),
-                    label: const Text('Coba Lagi'),
+                    child: const Text('Coba Lagi'),
                   ),
                 ),
               ],
@@ -141,14 +127,12 @@ class TampilanKosong extends StatelessWidget {
     super.key,
     required this.judul,
     required this.pesan,
-    this.ikon = Icons.inbox_rounded,
     this.labelTombol,
     this.onTombol,
   });
 
   final String judul;
   final String pesan;
-  final IconData ikon;
   final String? labelTombol;
   final VoidCallback? onTombol;
 
@@ -162,15 +146,6 @@ class TampilanKosong extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
-              Container(
-                padding: const EdgeInsets.all(Jarak.lg),
-                decoration: const BoxDecoration(
-                  color: Warna.aksen,
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(ikon, size: 30, color: Warna.primary),
-              ),
-              const SizedBox(height: Jarak.lg),
               Text(
                 judul,
                 textAlign: TextAlign.center,

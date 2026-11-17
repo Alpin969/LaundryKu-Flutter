@@ -140,15 +140,6 @@ class _PilihanStatus extends StatelessWidget {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              Container(
-                padding: const EdgeInsets.all(Jarak.sm),
-                decoration: BoxDecoration(
-                  color: status.warnaLatar,
-                  borderRadius: BorderRadius.circular(Jarak.sm),
-                ),
-                child: Icon(status.ikon, size: 17, color: status.warnaTeks),
-              ),
-              const SizedBox(width: Jarak.md),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,

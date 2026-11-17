@@ -92,8 +92,6 @@ class _GagalTampil extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
-            const Icon(Icons.image_rounded, size: 32, color: Warna.primary),
-            const SizedBox(height: Jarak.sm),
             Text(
               keterangan,
               textAlign: TextAlign.center,
@@ -145,22 +143,11 @@ class FotoDariServer extends StatelessWidget {
       errorBuilder: (_, _, _) => const Center(
         child: Padding(
           padding: EdgeInsets.all(Jarak.lg),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              Icon(
-                Icons.image_not_supported_outlined,
-                size: 30,
-                color: Warna.teksSamar,
-              ),
-              SizedBox(height: Jarak.sm),
-              Text(
-                'Foto ini tidak bisa ditampilkan. Coba muat ulang halaman; '
-                'bila tetap gagal, foto sudah tidak tersedia.',
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 12.5, color: Warna.teksKedua),
-              ),
-            ],
+          child: Text(
+            'Foto ini tidak bisa ditampilkan. Coba muat ulang halaman; '
+            'bila tetap gagal, foto sudah tidak tersedia.',
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 12.5, color: Warna.teksKedua),
           ),
         ),
       ),

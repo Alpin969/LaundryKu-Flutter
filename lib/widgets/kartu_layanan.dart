@@ -36,19 +36,6 @@ class KartuLayanan extends StatelessWidget {
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  Container(
-                    padding: const EdgeInsets.all(Jarak.sm + 2),
-                    decoration: BoxDecoration(
-                      color: Warna.aksen,
-                      borderRadius: BorderRadius.circular(Sudut.kolomIsian),
-                    ),
-                    child: const Icon(
-                      Icons.local_laundry_service_rounded,
-                      size: 22,
-                      color: Warna.primary,
-                    ),
-                  ),
-                  const SizedBox(width: Jarak.md),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -63,24 +50,12 @@ class KartuLayanan extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: Jarak.xs),
-                        Row(
-                          children: <Widget>[
-                            const Icon(
-                              Icons.schedule_rounded,
-                              size: 15,
-                              color: Warna.teksKedua,
-                            ),
-                            const SizedBox(width: 4),
-                            Flexible(
-                              child: Text(
-                                'Estimasi ${layanan.durasi}',
-                                style: const TextStyle(
-                                  fontSize: 12.5,
-                                  color: Warna.teksKedua,
-                                ),
-                              ),
-                            ),
-                          ],
+                        Text(
+                          'Estimasi ${layanan.durasi}',
+                          style: const TextStyle(
+                            fontSize: 12.5,
+                            color: Warna.teksKedua,
+                          ),
                         ),
                       ],
                     ),
@@ -118,12 +93,6 @@ class KartuLayanan extends StatelessWidget {
                     '/ kg',
                     style: TextStyle(fontSize: 12.5, color: Warna.teksKedua),
                   ),
-                  const Spacer(),
-                  if (onTap != null)
-                    const Icon(
-                      Icons.chevron_right_rounded,
-                      color: Warna.teksSamar,
-                    ),
                 ],
               ),
 

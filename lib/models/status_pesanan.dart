@@ -14,7 +14,6 @@ enum StatusPesanan {
     kode: 'PENDING_CONFIRMATION',
     label: 'Menunggu Konfirmasi',
     keterangan: 'Pesanan sudah masuk dan sedang menunggu diperiksa admin.',
-    ikon: Icons.hourglass_top_rounded,
     warnaTeks: Warna.peringatan,
     warnaLatar: Warna.peringatanMuda,
   ),
@@ -22,7 +21,6 @@ enum StatusPesanan {
     kode: 'CONFIRMED',
     label: 'Dikonfirmasi',
     keterangan: 'Pesanan diterima admin dan segera masuk proses pencucian.',
-    ikon: Icons.assignment_turned_in_rounded,
     warnaTeks: Warna.primaryGelap,
     warnaLatar: Warna.aksen,
   ),
@@ -30,7 +28,6 @@ enum StatusPesanan {
     kode: 'WASHING',
     label: 'Sedang Dicuci',
     keterangan: 'Pakaian sedang melalui proses pencucian.',
-    ikon: Icons.local_laundry_service_rounded,
     warnaTeks: Warna.primary,
     warnaLatar: Warna.aksenLembut,
   ),
@@ -38,7 +35,6 @@ enum StatusPesanan {
     kode: 'READY_FOR_PICKUP',
     label: 'Siap Diambil',
     keterangan: 'Pakaian sudah selesai dan bisa diambil di outlet.',
-    ikon: Icons.inventory_2_rounded,
     warnaTeks: Warna.sukses,
     warnaLatar: Warna.suksesMuda,
   ),
@@ -46,7 +42,6 @@ enum StatusPesanan {
     kode: 'COMPLETED',
     label: 'Selesai',
     keterangan: 'Pesanan sudah diambil pelanggan dan dinyatakan selesai.',
-    ikon: Icons.check_circle_rounded,
     warnaTeks: Warna.sukses,
     warnaLatar: Warna.suksesMuda,
   ),
@@ -54,7 +49,6 @@ enum StatusPesanan {
     kode: 'CANCELLED',
     label: 'Dibatalkan',
     keterangan: 'Pesanan dibatalkan dan tidak akan diproses.',
-    ikon: Icons.cancel_rounded,
     warnaTeks: Warna.bahaya,
     warnaLatar: Warna.bahayaMuda,
   );
@@ -63,7 +57,6 @@ enum StatusPesanan {
     required this.kode,
     required this.label,
     required this.keterangan,
-    required this.ikon,
     required this.warnaTeks,
     required this.warnaLatar,
   });
@@ -77,7 +70,6 @@ enum StatusPesanan {
   /// Penjelasan singkat arti status ini.
   final String keterangan;
 
-  final IconData ikon;
   final Color warnaTeks;
   final Color warnaLatar;
 

@@ -135,23 +135,13 @@ class DashboardAdminScreenState extends State<DashboardAdminScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            Row(
-              children: <Widget>[
-                const Icon(
-                  Icons.receipt_long_rounded,
-                  size: 18,
-                  color: Colors.white,
-                ),
-                const SizedBox(width: Jarak.sm),
-                Text(
-                  _memuat ? 'Memuat data...' : 'Ringkasan pesanan',
-                  style: const TextStyle(
-                    fontSize: 13.5,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
-                  ),
-                ),
-              ],
+            Text(
+              _memuat ? 'Memuat data...' : 'Ringkasan pesanan',
+              style: const TextStyle(
+                fontSize: 13.5,
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
+              ),
             ),
             const SizedBox(height: Jarak.lg),
             Row(
@@ -245,31 +235,14 @@ class DashboardAdminScreenState extends State<DashboardAdminScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            Row(
-              children: <Widget>[
-                Container(
-                  padding: const EdgeInsets.all(Jarak.sm),
-                  decoration: BoxDecoration(
-                    color: status.warnaLatar,
-                    borderRadius: BorderRadius.circular(Jarak.sm),
-                  ),
-                  child: Icon(
-                    status.ikon,
-                    size: 16,
-                    color: status.warnaTeks,
-                  ),
-                ),
-                const Spacer(),
-                Text(
-                  '${_jumlah(status)}',
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w700,
-                    color: Warna.teksUtama,
-                    height: 1.1,
-                  ),
-                ),
-              ],
+            Text(
+              '${_jumlah(status)}',
+              style: const TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w700,
+                color: Warna.teksUtama,
+                height: 1.1,
+              ),
             ),
             const SizedBox(height: Jarak.md),
             Text(
@@ -353,23 +326,14 @@ class _KotakBersih extends StatelessWidget {
         borderRadius: BorderRadius.circular(Sudut.kartu),
         border: Border.all(color: Warna.garis),
       ),
-      child: const Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Icon(Icons.task_alt_rounded, size: 22, color: Warna.sukses),
-          SizedBox(width: Jarak.md),
-          Expanded(
-            child: Text(
-              'Tidak ada pesanan yang menunggu konfirmasi atau siap diambil '
-              'saat ini.',
-              style: TextStyle(
-                fontSize: 13.5,
-                color: Warna.teksKedua,
-                height: 1.55,
-              ),
-            ),
-          ),
-        ],
+      child: const Text(
+        'Tidak ada pesanan yang menunggu konfirmasi atau siap diambil '
+        'saat ini.',
+        style: TextStyle(
+          fontSize: 13.5,
+          color: Warna.teksKedua,
+          height: 1.55,
+        ),
       ),
     );
   }

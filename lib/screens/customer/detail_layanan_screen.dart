@@ -31,19 +31,6 @@ class DetailLayananScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                Container(
-                  padding: const EdgeInsets.all(Jarak.md),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.18),
-                    borderRadius: BorderRadius.circular(Sudut.kolomIsian),
-                  ),
-                  child: const Icon(
-                    Icons.local_laundry_service_rounded,
-                    size: 26,
-                    color: Colors.white,
-                  ),
-                ),
-                const SizedBox(height: Jarak.lg),
                 Text(
                   layanan.nama,
                   style: const TextStyle(
@@ -86,19 +73,16 @@ class DetailLayananScreen extends StatelessWidget {
           const SizedBox(height: Jarak.xl),
 
           _barisInfo(
-            ikon: Icons.schedule_rounded,
             judul: 'Estimasi pengerjaan',
             isi: layanan.durasi,
           ),
           const SizedBox(height: Jarak.md),
           _barisInfo(
-            ikon: Icons.scale_rounded,
             judul: 'Satuan harga',
             isi: 'Dihitung per kilogram berat pakaian',
           ),
           const SizedBox(height: Jarak.md),
           _barisInfo(
-            ikon: Icons.receipt_long_rounded,
             judul: 'Harga akhir',
             isi:
                 'Dihitung admin setelah pakaian ditimbang, memakai berat '
@@ -144,33 +128,20 @@ class DetailLayananScreen extends StatelessWidget {
                 color: Warna.aksenLembut,
                 borderRadius: BorderRadius.circular(Sudut.kartu),
               ),
-              child: const Row(
-                children: <Widget>[
-                  Icon(
-                    Icons.info_outline_rounded,
-                    size: 20,
-                    color: Warna.primary,
-                  ),
-                  SizedBox(width: Jarak.md),
-                  Expanded(
-                    child: Text(
-                      'Masuk sebagai pelanggan dulu untuk bisa memesan '
-                      'layanan ini.',
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: Warna.primaryGelap,
-                        height: 1.5,
-                      ),
-                    ),
-                  ),
-                ],
+              child: const Text(
+                'Masuk sebagai pelanggan dulu untuk bisa memesan '
+                'layanan ini.',
+                style: TextStyle(
+                  fontSize: 13,
+                  color: Warna.primaryGelap,
+                  height: 1.5,
+                ),
               ),
             )
           else
-            FilledButton.icon(
+            FilledButton(
               onPressed: () => _pesan(context),
-              icon: const Icon(Icons.add_shopping_cart_rounded, size: 20),
-              label: const Text('Pesan Layanan Ini'),
+              child: const Text('Pesan Layanan Ini'),
             ),
 
           const SizedBox(height: Jarak.lg),
@@ -188,7 +159,6 @@ class DetailLayananScreen extends StatelessWidget {
   }
 
   Widget _barisInfo({
-    required IconData ikon,
     required String judul,
     required String isi,
   }) {
@@ -199,33 +169,24 @@ class DetailLayananScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(Sudut.kartu),
         border: Border.all(color: Warna.garis),
       ),
-      child: Row(
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Icon(ikon, size: 20, color: Warna.primary),
-          const SizedBox(width: Jarak.md),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Text(
-                  judul,
-                  style: const TextStyle(
-                    fontSize: 13.5,
-                    fontWeight: FontWeight.w600,
-                    color: Warna.teksUtama,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  isi,
-                  style: const TextStyle(
-                    fontSize: 12.5,
-                    color: Warna.teksKedua,
-                    height: 1.55,
-                  ),
-                ),
-              ],
+          Text(
+            judul,
+            style: const TextStyle(
+              fontSize: 13.5,
+              fontWeight: FontWeight.w600,
+              color: Warna.teksUtama,
+            ),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            isi,
+            style: const TextStyle(
+              fontSize: 12.5,
+              color: Warna.teksKedua,
+              height: 1.55,
             ),
           ),
         ],
