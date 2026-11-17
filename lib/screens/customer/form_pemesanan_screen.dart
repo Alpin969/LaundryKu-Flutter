@@ -164,6 +164,23 @@ class _FormPemesananScreenState extends State<FormPemesananScreen> {
                         labelText: 'Layanan',
                         prefixIcon: Icon(Icons.local_laundry_service_rounded),
                       ),
+                      // Kolom tertutup hanya menampilkan nama layanan. Kalau
+                      // harga ikut ditulis di sini, nama layanan yang panjang
+                      // terpotong elipsis pada layar sempit — harga sudah
+                      // tertera pada ringkasan di bawah dan pada daftar
+                      // pilihannya.
+                      selectedItemBuilder: (BuildContext context) =>
+                          _daftarLayanan
+                              .map(
+                                (Layanan l) => Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Text(
+                                    l.nama,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              )
+                              .toList(),
                       items: _daftarLayanan
                           .map(
                             (Layanan l) => DropdownMenuItem<Layanan>(
