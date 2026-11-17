@@ -11,6 +11,7 @@ import 'package:laundryku/models/status_pesanan.dart';
 import 'package:laundryku/screens/auth/login_screen.dart';
 import 'package:laundryku/screens/auth/register_screen.dart';
 import 'package:laundryku/screens/auth/splash_screen.dart';
+import 'package:laundryku/screens/customer/ubah_profil_screen.dart';
 import 'package:laundryku/widgets/app_logo.dart';
 import 'package:laundryku/widgets/baris_detail.dart';
 import 'package:laundryku/widgets/kartu_layanan.dart';
@@ -99,6 +100,11 @@ void main() {
           layar.ukuran,
           adaAnimasiBerulang: true,
         );
+        expect(tester.takeException(), isNull);
+      });
+
+      testWidgets('halaman ubah profil muat di ${layar.nama}', (tester) async {
+        await pasangLayar(tester, const UbahProfilScreen(), layar.ukuran);
         expect(tester.takeException(), isNull);
       });
     }
@@ -294,8 +300,8 @@ void main() {
         Scaffold(
           body: TampilanGagal(
             pesan:
-                'Tidak bisa terhubung ke server LaundryKu. Pastikan backend '
-                'sudah berjalan dan alamat API-nya benar.',
+                'Tidak bisa terhubung ke LaundryKu. Periksa koneksi internet '
+                'Anda, lalu coba lagi.',
             judul: 'Pesanan tidak bisa dimuat',
             onCobaLagi: () {},
           ),

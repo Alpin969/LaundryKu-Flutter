@@ -12,6 +12,7 @@ import 'api_client.dart';
 ///   GET    /api/orders/:id             - detail pesanan
 ///   PATCH  /api/orders/:id/batal       - batalkan pesanan
 ///   PATCH  /api/orders/:id/foto        - unggah foto (multipart, field "photo")
+///   DELETE /api/orders/:id/foto        - hapus foto pesanan
 ///   PATCH  /api/orders/:id/status      - ubah status (ADMIN)
 ///   PATCH  /api/orders/:id/berat-asli  - isi berat asli (ADMIN)
 class PesananService {
@@ -164,6 +165,19 @@ class PesananService {
       byte: byte,
       namaBerkas: foto.name.isEmpty ? 'foto.jpg' : foto.name,
       tipeMime: tipe,
+    );
+
+    return Pesanan.dariJson(Map<String, dynamic>.from(data as Map));
+  }
+
+  /// Menghapus foto pesanan.
+  ///
+  /// Pelanggan pemilik pesanan maupun admin boleh menghapusnya, sama seperti
+  /// saat mengunggah. Setelah dihapus, pesanan kembali tanpa foto dan foto
+  /// baru bisa diunggah lagi.
+  Future<Pesanan> hapusFoto(int orderId) async {
+    final dynamic data = await ApiClient.instance.delete(
+      '/api/orders/$orderId/foto',
     );
 
     return Pesanan.dariJson(Map<String, dynamic>.from(data as Map));

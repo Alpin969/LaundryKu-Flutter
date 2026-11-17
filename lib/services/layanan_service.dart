@@ -49,26 +49,7 @@ class LayananService {
   /// menolaknya dengan HTTP 409 dan pesan yang menjelaskan sebabnya. Pesan itu
   /// diteruskan apa adanya lewat ApiException.
   Future<void> hapus(int id) async {
-    try {
-      await ApiClient.instance.delete('/api/services/$id');
-    } on ApiException catch (kesalahan) {
-      // Selama cacat backend 23001 belum diperbaiki (lihat catatan pada
-      // pengujian integrasi), penolakan karena layanan masih dipakai datang
-      // sebagai 500 generik. Pesan generik tidak memberi admin langkah
-      // berikutnya, jadi di sini diperjelas. Bila backend sudah menjawab 409,
-      // pesannya sudah jelas dan diteruskan apa adanya.
-      if (kesalahan.statusCode == 500) {
-        throw ApiException(
-          'Layanan gagal dihapus. Kemungkinan layanan ini masih dipakai pada '
-          'pesanan, sehingga belum bisa dihapus. Selesaikan atau batalkan '
-          'pesanan tersebut lebih dahulu, lalu coba lagi.',
-          kode: kesalahan.kode,
-          statusCode: kesalahan.statusCode,
-        );
-      }
-
-      rethrow;
-    }
+    await ApiClient.instance.delete('/api/services/$id');
   }
 
   List<Layanan> _ubahKeDaftarLayanan(dynamic data) {

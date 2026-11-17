@@ -846,19 +846,12 @@ void main() {
         await _layananService.hapus(layanan.id);
       });
 
-      // CATATAN — cacat backend yang ditemukan pengujian ini:
       // foreign key orders.service_id memakai ON DELETE RESTRICT, dan
       // PostgreSQL melaporkannya dengan kode 23001 (restrict_violation).
-      // services.controller.js hanya memeriksa 23503 (foreign_key_violation),
-      // sehingga penolakan ini lolos menjadi HTTP 500 dengan pesan generik,
-      // bukan 409 SERVICE_IN_USE seperti yang dimaksud. Dibuktikan langsung:
-      //   DELETE /api/services/<id>  ->  500
-      //   {"success":false,"message":"Terjadi kesalahan pada server.",
-      //    "error":"23001"}
-      // Backend tidak diubah pada pekerjaan ini, jadi yang diperiksa di sini
-      // adalah pesan yang diterima pengguna setelah LayananService
-      // menerjemahkan 500 tersebut.
-      expect(kesalahan.statusCode, 500);
+      // Backend menerjemahkannya menjadi 409 SERVICE_IN_USE, sehingga admin
+      // mendapat penjelasan dan langkah berikutnya, bukan "terjadi kesalahan".
+      expect(kesalahan.statusCode, 409);
+      expect(kesalahan.kode, 'SERVICE_IN_USE');
       expect(kesalahan.pesan, contains('masih dipakai'));
       expect(kesalahan.pesan, contains('batalkan'));
     });
@@ -961,9 +954,149 @@ void main() {
       _tokenPelanggan = ApiClient.instance.token;
     });
   });
-}
+  group('I. Hapus foto pesanan', () {
+    late Pesanan pesanan;
 
-/// PNG 1x1 yang sah, dipakai sebagai berkas uji unggah.
+    setUpAll(() async {
+      pakaiPelanggan();
+      final Layanan layanan = await _layananUntukPesanan();
+      final Pesanan baru = await _pesananService.buat(
+        serviceId: layanan.id,
+        estimatedWeight: 2,
+      );
+
+      pesanan = await _pesananService.unggahFoto(
+        orderId: baru.id,
+        foto: XFile.fromData(
+          _pngSatuPiksel(),
+          name: 'akan-dihapus.png',
+          mimeType: 'image/png',
+        ),
+      );
+    });
+
+    setUp(pakaiPelanggan);
+
+    test('admin bisa menghapus foto pesanan pelanggan', () async {
+      pakaiAdmin();
+
+      final Pesanan kosong = await _pesananService.hapusFoto(pesanan.id);
+
+      expect(kosong.adaFoto, isFalse);
+      expect(kosong.photoUrl, isNull);
+      expect(kosong.alamatFoto, isNull);
+
+      pesanan = kosong;
+    }, skip: _lewatiAdmin);
+
+    test('foto yang sudah dihapus benar-benar hilang dari detail', () async {
+      final Pesanan detail = await _pesananService.detail(pesanan.id);
+      expect(detail.adaFoto, isFalse);
+    }, skip: _lewatiAdmin);
+
+    test('menghapus foto yang tidak ada dijawab 404', () async {
+      final ApiException kesalahan = await _harusGagal(() async {
+        await _pesananService.hapusFoto(pesanan.id);
+      });
+
+      expect(kesalahan.statusCode, 404);
+      expect(kesalahan.kode, 'FILE_NOT_FOUND');
+    }, skip: _lewatiAdmin);
+
+    test('setelah foto dihapus, foto baru bisa diunggah lagi', () async {
+      final Pesanan lagi = await _pesananService.unggahFoto(
+        orderId: pesanan.id,
+        foto: XFile.fromData(
+          _pngSatuPiksel(),
+          name: 'pengganti.png',
+          mimeType: 'image/png',
+        ),
+      );
+
+      expect(lagi.adaFoto, isTrue);
+
+      // Pesanan yang tidak ada dijawab 404, bukan 403, supaya keberadaan
+      // pesanan milik akun lain tidak ikut terbocor.
+      final ApiException kesalahan = await _harusGagal(() async {
+        await _pesananService.hapusFoto(999999999);
+      });
+      expect(kesalahan.statusCode, 404);
+    }, skip: _lewatiAdmin);
+  });
+
+  group('J. Ubah profil akun', () {
+    setUp(pakaiPelanggan);
+
+    test('nama akun bisa diubah dan langsung berlaku', () async {
+      final User akun = await AuthService.instance.ubahProfil(
+        nama: 'Uji Mobile Baru',
+      );
+
+      expect(akun.nama, 'Uji Mobile Baru');
+      expect(AuthService.instance.pengguna?.nama, 'Uji Mobile Baru');
+
+      // Backend benar-benar menyimpannya, bukan hanya di aplikasi.
+      final dynamic data = await ApiClient.instance.get('/api/auth/me');
+      expect((data['user'] as Map<String, dynamic>)['name'], 'Uji Mobile Baru');
+    });
+
+    test('ganti kata sandi tanpa kata sandi lama ditolak', () async {
+      final ApiException kesalahan = await _harusGagal(() async {
+        await AuthService.instance.ubahProfil(
+          nama: 'Uji Mobile Baru',
+          sandiBaru: 'SandiGanti2026!',
+        );
+      });
+
+      expect(kesalahan.statusCode, 400);
+      expect(kesalahan.kode, 'CURRENT_PASSWORD_REQUIRED');
+    });
+
+    test('kata sandi lama yang salah ditolak', () async {
+      final ApiException kesalahan = await _harusGagal(() async {
+        await AuthService.instance.ubahProfil(
+          nama: 'Uji Mobile Baru',
+          sandiLama: 'jelas-salah-sekali',
+          sandiBaru: 'SandiGanti2026!',
+        );
+      });
+
+      expect(kesalahan.statusCode, 401);
+      expect(kesalahan.kode, 'INVALID_CURRENT_PASSWORD');
+    });
+
+    test('kata sandi benar-benar berganti setelah diubah', () async {
+      await AuthService.instance.ubahProfil(
+        nama: 'Uji Mobile Baru',
+        sandiLama: _sandiPelanggan,
+        sandiBaru: 'SandiGanti2026!',
+      );
+
+      // Sesi yang sedang berjalan tidak terganggu.
+      expect(AuthService.instance.pengguna?.nama, 'Uji Mobile Baru');
+
+      // Kata sandi baru diterima, kata sandi lama sudah tidak berlaku.
+      final User lagi = await AuthService.instance.masuk(
+        email: _emailPelanggan,
+        password: 'SandiGanti2026!',
+      );
+      expect(lagi.id, _idPelanggan);
+
+      final ApiException kesalahan = await _harusGagal(() async {
+        await ApiClient.instance.post(
+          '/api/auth/login',
+          body: <String, dynamic>{
+            'email': _emailPelanggan,
+            'password': _sandiPelanggan,
+          },
+        );
+      });
+      expect(kesalahan.statusCode, 401);
+
+      _tokenPelanggan = ApiClient.instance.token;
+    });
+  });
+}
 Uint8List _pngSatuPiksel() {
   return base64Decode(
     'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8DwHwAFAAH/'

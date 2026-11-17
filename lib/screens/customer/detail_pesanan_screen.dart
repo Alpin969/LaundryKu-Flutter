@@ -338,9 +338,7 @@ class _DetailPesananScreenState extends State<DetailPesananScreen> {
   }
 
   Future<void> _hapusFoto(Pesanan pesanan) async {
-    // Hanya foto yang belum terkirim yang bisa dibuang dari sini. Backend
-    // tidak punya endpoint untuk menghapus foto pesanan, jadi tombol ini
-    // tidak dipakai untuk foto yang sudah tersimpan.
+    // Foto yang baru dipilih dan belum terkirim cukup dibuang dari sini.
     if (_fotoBaru != null && !pesanan.adaFoto) {
       setState(() => _fotoBaru = null);
       tampilkanPesan(context, 'Pilihan foto dibatalkan.');
@@ -349,14 +347,25 @@ class _DetailPesananScreenState extends State<DetailPesananScreen> {
 
     if (!pesanan.adaFoto) return;
 
-    await konfirmasi(
+    final bool setuju = await konfirmasi(
       context,
       judul: 'Hapus foto pesanan?',
       pesan:
-          'Backend belum menyediakan penghapusan foto. Foto bisa diganti '
-          'dengan mengunggah foto baru; foto lama akan otomatis terhapus.',
-      labelLanjut: 'Mengerti',
-      labelBatal: 'Tutup',
+          'Foto pakaian pada pesanan #${pesanan.id} akan dihapus. '
+          'Anda tetap bisa mengunggah foto baru setelahnya.',
+      labelLanjut: 'Hapus',
+      berbahaya: true,
+    );
+
+    if (!setuju || !mounted) return;
+
+    setState(() => _fotoBaru = null);
+
+    await _kerjakan(
+      () async {
+        await _pesananService.hapusFoto(pesanan.id);
+      },
+      pesanSukses: 'Foto pesanan berhasil dihapus.',
     );
   }
 
@@ -413,9 +422,8 @@ class _DetailPesananScreenState extends State<DetailPesananScreen> {
           if (!pesanan.hargaSudahFinal) ...<Widget>[
             const SizedBox(height: Jarak.md),
             const Text(
-              'Total biaya baru muncul setelah admin menimbang pakaian Anda '
-              'dan mengisi berat aktualnya. Angka ini dihitung server, bukan '
-              'oleh aplikasi.',
+              'Total biaya baru muncul setelah petugas menimbang pakaian '
+              'Anda dan mengisi berat aktualnya.',
               style: TextStyle(
                 fontSize: 12,
                 color: Warna.teksSamar,

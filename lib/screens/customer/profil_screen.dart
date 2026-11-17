@@ -1,18 +1,17 @@
 import 'package:flutter/material.dart';
 
-import '../../config/api_config.dart';
 import '../../config/app_theme.dart';
 import '../../models/user.dart';
 import '../../services/auth_service.dart';
 import '../../utils/format.dart';
 import '../../widgets/baris_detail.dart';
 import '../../widgets/pesan_ui.dart';
+import 'ubah_profil_screen.dart';
 
 /// Halaman profil, dipakai pelanggan maupun admin.
 ///
-/// Isinya data akun dari `GET /api/auth/me`, ditambah tombol keluar. Tidak ada
-/// form ubah profil karena backend belum menyediakan endpoint-nya; menampilkan
-/// kolom yang tidak bisa disimpan hanya akan menyesatkan.
+/// Isinya data akun dari `GET /api/auth/me`, tombol ubah data akun, dan
+/// tombol keluar.
 class ProfilScreen extends StatefulWidget {
   const ProfilScreen({super.key});
 
@@ -27,6 +26,23 @@ class _ProfilScreenState extends State<ProfilScreen> {
     setState(() => _sedangMuatUlang = true);
     await AuthService.instance.segarkanAkun();
     if (mounted) setState(() => _sedangMuatUlang = false);
+  }
+
+  Future<void> _bukaUbahProfil() async {
+    final bool? berhasil = await Navigator.of(context).push<bool>(
+      MaterialPageRoute<bool>(builder: (_) => const UbahProfilScreen()),
+    );
+
+    if (!mounted || berhasil != true) return;
+
+    // Data akun sudah diperbarui di AuthService, jadi halaman ini cukup
+    // digambar ulang untuk menampilkan nama yang baru.
+    setState(() {});
+    tampilkanPesan(
+      context,
+      'Data akun berhasil diperbarui.',
+      jenis: JenisPesan.sukses,
+    );
   }
 
   Future<void> _keluar() async {
@@ -91,7 +107,7 @@ class _ProfilScreenState extends State<ProfilScreen> {
                 ),
                 const SizedBox(height: Jarak.sm),
                 BarisDetail(
-                  label: 'Role',
+                  label: 'Jenis akun',
                   nilai: pengguna?.peran.label ?? '-',
                 ),
                 const SizedBox(height: Jarak.sm),
@@ -101,6 +117,14 @@ class _ProfilScreenState extends State<ProfilScreen> {
                 ),
               ],
             ),
+          ),
+
+          const SizedBox(height: Jarak.lg),
+
+          FilledButton.icon(
+            onPressed: _bukaUbahProfil,
+            icon: const Icon(Icons.manage_accounts_outlined, size: 20),
+            label: const Text('Ubah Profil'),
           ),
 
           const SizedBox(height: Jarak.xl),
@@ -117,9 +141,9 @@ class _ProfilScreenState extends State<ProfilScreen> {
                   nilai: 'Bersih, Praktis, Terpercaya',
                 ),
                 const SizedBox(height: Jarak.sm),
-                BarisDetail(
-                  label: 'Alamat server',
-                  nilai: ApiConfig.baseUrl,
+                const BarisDetail(
+                  label: 'Versi',
+                  nilai: '1.0.0',
                 ),
               ],
             ),
