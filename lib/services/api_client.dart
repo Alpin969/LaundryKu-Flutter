@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 
@@ -55,6 +56,15 @@ class ApiClient {
   /// AuthService, bukan bagian dari antarmuka halaman.
   String? token;
 
+  /// Klien HTTP pengganti yang hanya dipakai pengujian.
+  ///
+  /// Aplikasi selalu membiarkannya kosong dan memakai klien bawaan package
+  /// http. Pengujian mengisinya dengan klien buatan supaya alur halaman
+  /// (mis. daftar lalu masuk ke beranda) bisa diperiksa tanpa jaringan
+  /// sungguhan dan tanpa backend yang sedang berjalan.
+  @visibleForTesting
+  http.Client? klienUji;
+
   static const Duration _batasWaktu = Duration(seconds: 25);
 
   Uri _uri(String path, Map<String, dynamic>? query) {
@@ -83,42 +93,55 @@ class ApiClient {
     };
   }
 
+  // Setiap permintaan memakai klienUji bila ada, dan klien bawaan package http
+  // bila tidak. Aplikasi sendiri tidak pernah mengisi klienUji.
+
   Future<dynamic> get(String path, {Map<String, dynamic>? query}) {
-    return _kirim(() => http.get(_uri(path, query), headers: _header()));
+    final Uri uri = _uri(path, query);
+    return _kirim(
+      () =>
+          klienUji?.get(uri, headers: _header()) ??
+          http.get(uri, headers: _header()),
+    );
   }
 
   Future<dynamic> post(String path, {Map<String, dynamic>? body}) {
+    final Uri uri = _uri(path, null);
+    final String isi = jsonEncode(body ?? <String, dynamic>{});
     return _kirim(
-      () => http.post(
-        _uri(path, null),
-        headers: _header(),
-        body: jsonEncode(body ?? <String, dynamic>{}),
-      ),
+      () =>
+          klienUji?.post(uri, headers: _header(), body: isi) ??
+          http.post(uri, headers: _header(), body: isi),
     );
   }
 
   Future<dynamic> put(String path, {Map<String, dynamic>? body}) {
+    final Uri uri = _uri(path, null);
+    final String isi = jsonEncode(body ?? <String, dynamic>{});
     return _kirim(
-      () => http.put(
-        _uri(path, null),
-        headers: _header(),
-        body: jsonEncode(body ?? <String, dynamic>{}),
-      ),
+      () =>
+          klienUji?.put(uri, headers: _header(), body: isi) ??
+          http.put(uri, headers: _header(), body: isi),
     );
   }
 
   Future<dynamic> patch(String path, {Map<String, dynamic>? body}) {
+    final Uri uri = _uri(path, null);
+    final String isi = jsonEncode(body ?? <String, dynamic>{});
     return _kirim(
-      () => http.patch(
-        _uri(path, null),
-        headers: _header(),
-        body: jsonEncode(body ?? <String, dynamic>{}),
-      ),
+      () =>
+          klienUji?.patch(uri, headers: _header(), body: isi) ??
+          http.patch(uri, headers: _header(), body: isi),
     );
   }
 
   Future<dynamic> delete(String path) {
-    return _kirim(() => http.delete(_uri(path, null), headers: _header()));
+    final Uri uri = _uri(path, null);
+    return _kirim(
+      () =>
+          klienUji?.delete(uri, headers: _header()) ??
+          http.delete(uri, headers: _header()),
+    );
   }
 
   /// Mengunggah satu foto pesanan sebagai `multipart/form-data`
@@ -160,7 +183,10 @@ class ApiClient {
         ),
       );
 
-      final http.StreamedResponse aliran = await permintaan.send();
+      final http.Client? klien = klienUji;
+      final http.StreamedResponse aliran = klien == null
+          ? await permintaan.send()
+          : await klien.send(permintaan);
       return http.Response.fromStream(aliran);
     });
   }
