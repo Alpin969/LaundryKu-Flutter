@@ -1,4 +1,5 @@
-// Pengujian alur keranjang: dari isi keranjang sampai "Pesan & Bayar".
+// Pengujian alur keranjang: dari isi keranjang sampai "Pesan & Bayar", juga
+// jalan pintas "Bayar Langsung" dari halaman detail layanan.
 //
 // Yang diperiksa di sini adalah hal yang tidak terlihat oleh pengujian lain:
 // setiap layanan di keranjang harus menjadi SATU pesanan, dan metode
@@ -24,6 +25,7 @@ import 'package:http/testing.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:laundryku/config/app_theme.dart';
 import 'package:laundryku/models/layanan.dart';
+import 'package:laundryku/screens/customer/form_pemesanan_screen.dart';
 import 'package:laundryku/screens/customer/keranjang_screen.dart';
 import 'package:laundryku/services/api_client.dart';
 import 'package:laundryku/services/keranjang_service.dart';
@@ -210,6 +212,38 @@ void main() {
     );
     expect(find.text('Metode pembayaran'), findsNothing);
   });
+
+  testWidgets('bayar langsung membawa isi form ke halaman pembayaran', (
+    WidgetTester tester,
+  ) async {
+    await _pasangForm(tester);
+
+    expect(
+      find.widgetWithText(FilledButton, 'Lanjut ke Pembayaran'),
+      findsOneWidget,
+      reason:
+          'Form yang dibuka dari tombol Bayar Langsung harus menawarkan '
+          'lanjut ke pembayaran, bukan sekadar simpan ke keranjang.',
+    );
+
+    await tester.enterText(find.byType(TextFormField), '3.5');
+    await tester.pump();
+
+    await tester.tap(find.widgetWithText(FilledButton, 'Lanjut ke Pembayaran'));
+    await _tenang(tester);
+
+    expect(
+      find.byType(KeranjangScreen),
+      findsOneWidget,
+      reason:
+          'Setelah form disimpan, pelanggan harus sudah berada di halaman '
+          'pembayaran tanpa membuka keranjang sendiri.',
+    );
+    expect(KeranjangService.instance.jumlah, 1);
+    expect(KeranjangService.instance.item.single.beratPerkiraan, 3.5);
+
+    await _selesaikanPesan(tester);
+  });
 }
 
 /// Memasang halaman keranjang pada layar tinggi, supaya ringkasan dan tombol
@@ -223,6 +257,25 @@ Future<void> _pasangKeranjang(WidgetTester tester) async {
     MaterialApp(
       theme: AppTheme.terang(),
       home: const KeranjangScreen(),
+    ),
+  );
+
+  await _tenang(tester);
+}
+
+/// Memasang form pemesanan seperti dibuka dari tombol "Bayar Langsung".
+Future<void> _pasangForm(WidgetTester tester) async {
+  tester.view.physicalSize = const Size(420, 1600);
+  tester.view.devicePixelRatio = 1.0;
+  addTearDown(tester.view.reset);
+
+  await tester.pumpWidget(
+    MaterialApp(
+      theme: AppTheme.terang(),
+      home: const FormPemesananScreen(
+        layananAwal: _cuciKering,
+        langsungBayar: true,
+      ),
     ),
   );
 
@@ -298,6 +351,26 @@ MockClient _klienPalsu({List<Map<String, dynamic>>? catatanPermintaan}) {
           metode: null,
         ),
       );
+    }
+
+    if (permintaan.method == 'GET' && jalur == '/api/services') {
+      return _balas(200, <Map<String, dynamic>>[
+        <String, dynamic>{
+          'id': 17,
+          'name': 'Cuci Kering Setrika',
+          'description':
+              'Pakaian dicuci, dikeringkan, disetrika, lalu dilipat rapi.',
+          'price_per_kg': '7000.00',
+          'duration': '2 hari',
+        },
+        <String, dynamic>{
+          'id': 21,
+          'name': 'Bed Cover dan Selimut',
+          'description': 'Khusus bed cover, selimut, dan kain tebal.',
+          'price_per_kg': '15000.00',
+          'duration': '3 hari',
+        },
+      ]);
     }
 
     return http.Response(
