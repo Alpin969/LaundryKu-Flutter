@@ -6,6 +6,7 @@ import '../../widgets/penyegar_otomatis.dart';
 import '../admin/dashboard_admin_screen.dart';
 import '../admin/kelola_layanan_screen.dart';
 import '../customer/beranda_screen.dart';
+import '../customer/daftar_layanan_screen.dart';
 import '../customer/daftar_pesanan_screen.dart';
 import '../customer/profil_screen.dart';
 import '../customer/riwayat_screen.dart';
@@ -26,8 +27,10 @@ class TujuanNavigasi {
 /// Kerangka halaman pelanggan.
 ///
 /// Empat tujuan sesuai rancangan: Beranda, Pesanan, Riwayat, dan Profil.
-/// Daftar layanan dibuka dari beranda, bukan dijadikan tab, karena pelanggan
-/// biasanya melihat layanan justru saat akan memesan.
+/// Tab Pesanan menampilkan daftar layanan dari backend sebagai pintu masuk
+/// pemesanan, bukan tabel pesanan: pada aplikasi ponsel pelanggan, membuka
+/// pesanan hampir selalu berarti "saya mau pesan layanan yang mana". Pesanan
+/// yang sudah dibuat tetap dijangkau dari beranda dan tab Riwayat.
 ///
 /// Isi tiap tujuan disimpan dalam IndexedStack supaya posisi gulir dan data
 /// yang sudah dimuat tidak hilang saat berpindah tab.
@@ -64,8 +67,8 @@ class ShellPelangganState extends State<ShellPelanggan> {
     ),
     TujuanNavigasi(
       label: 'Pesanan',
-      ikon: Icons.receipt_long_outlined,
-      ikonTerpilih: Icons.receipt_long_rounded,
+      ikon: Icons.local_laundry_service_outlined,
+      ikonTerpilih: Icons.local_laundry_service_rounded,
     ),
     TujuanNavigasi(
       label: 'Riwayat',
@@ -121,7 +124,11 @@ class ShellPelangganState extends State<ShellPelanggan> {
                 PenyegarOtomatis(
                   aktif: _indeks == 1,
                   muatUlang: _segarkanPesanan,
-                  child: DaftarPesananScreen(key: _kunciPesanan),
+                  child: DaftarLayananScreen(
+                    key: _kunciPesanan,
+                    memilihLayanan: true,
+                    tanpaScaffold: true,
+                  ),
                 ),
                 PenyegarOtomatis(
                   aktif: _indeks == 2,

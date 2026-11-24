@@ -18,9 +18,18 @@ import 'detail_layanan_screen.dart';
 ///             "pilih layanan".
 ///   - false : dipakai untuk melihat daftar layanan saja.
 class DaftarLayananScreen extends StatefulWidget {
-  const DaftarLayananScreen({super.key, this.memilihLayanan = false});
+  const DaftarLayananScreen({
+    super.key,
+    this.memilihLayanan = false,
+    this.tanpaScaffold = false,
+  });
 
   final bool memilihLayanan;
+
+  /// Dipakai saat halaman ini dipasang di dalam kerangka navigasi sebagai tab:
+  /// kerangka sudah menyediakan Scaffold dan AppBar, jadi halaman ini hanya
+  /// mengisi isinya. Tanpa ini akan muncul dua AppBar bertumpuk.
+  final bool tanpaScaffold;
 
   @override
   State<DaftarLayananScreen> createState() => _DaftarLayananScreenState();
@@ -85,34 +94,43 @@ class _DaftarLayananScreenState extends State<DaftarLayananScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final Widget isi = Column(
+      children: <Widget>[
+        Padding(
+          padding: EdgeInsets.fromLTRB(
+            Jarak.xl,
+            widget.tanpaScaffold ? Jarak.sm : Jarak.lg,
+            Jarak.xl,
+            0,
+          ),
+          child: TextField(
+            controller: _pencarian,
+            textInputAction: TextInputAction.search,
+            decoration: InputDecoration(
+              hintText: 'Cari layanan...',
+              suffixIcon: _pencarian.text.isEmpty
+                  ? null
+                  : IconButton(
+                      onPressed: () => _pencarian.clear(),
+                      tooltip: 'Hapus pencarian',
+                      icon: const Icon(Icons.close_rounded),
+                    ),
+            ),
+          ),
+        ),
+        Expanded(child: _isi()),
+      ],
+    );
+
+    if (widget.tanpaScaffold) return isi;
+
     return Scaffold(
       appBar: AppBar(
         title: Text(
           widget.memilihLayanan ? 'Pilih Layanan' : 'Daftar Layanan',
         ),
       ),
-      body: Column(
-        children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.fromLTRB(Jarak.xl, Jarak.lg, Jarak.xl, 0),
-            child: TextField(
-              controller: _pencarian,
-              textInputAction: TextInputAction.search,
-              decoration: InputDecoration(
-                hintText: 'Cari layanan...',
-                suffixIcon: _pencarian.text.isEmpty
-                    ? null
-                    : IconButton(
-                        onPressed: () => _pencarian.clear(),
-                        tooltip: 'Hapus pencarian',
-                        icon: const Icon(Icons.close_rounded),
-                      ),
-              ),
-            ),
-          ),
-          Expanded(child: _isi()),
-        ],
-      ),
+      body: isi,
     );
   }
 
