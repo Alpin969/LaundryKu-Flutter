@@ -110,7 +110,7 @@ class _GagalTampil extends StatelessWidget {
 /// Foto pesanan yang sudah tersimpan.
 ///
 /// Terpisah dari [PratinjauFotoLokal] karena sumbernya berbeda: yang ini
-/// diambil dari alamat HTTP milik LaundryKu, bukan dari berkas di perangkat.
+/// diambil dari alamat HTTP milik RENOVA, bukan dari berkas di perangkat.
 class FotoDariServer extends StatelessWidget {
   const FotoDariServer({
     super.key,

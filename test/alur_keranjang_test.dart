@@ -23,12 +23,12 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:intl/date_symbol_data_local.dart';
-import 'package:laundryku/config/app_theme.dart';
-import 'package:laundryku/models/layanan.dart';
-import 'package:laundryku/screens/customer/form_pemesanan_screen.dart';
-import 'package:laundryku/screens/customer/keranjang_screen.dart';
-import 'package:laundryku/services/api_client.dart';
-import 'package:laundryku/services/keranjang_service.dart';
+import 'package:renova/config/app_theme.dart';
+import 'package:renova/models/layanan.dart';
+import 'package:renova/screens/customer/form_pemesanan_screen.dart';
+import 'package:renova/screens/customer/keranjang_screen.dart';
+import 'package:renova/services/api_client.dart';
+import 'package:renova/services/keranjang_service.dart';
 
 /// Layanan yang dipakai mengisi keranjang.
 const Layanan _cuciKering = Layanan(
@@ -302,7 +302,7 @@ Future<void> _selesaikanPesan(WidgetTester tester) async {
   await tester.pump(const Duration(milliseconds: 400));
 }
 
-/// Klien HTTP buatan: menjawab seperti backend LaundryKu, tanpa jaringan.
+/// Klien HTTP buatan: menjawab seperti backend RENOVA, tanpa jaringan.
 ///
 /// Bila [catatanPermintaan] diisi, setiap permintaan yang masuk dicatat pada
 /// daftar itu supaya pengujian bisa memeriksa isi body yang benar-benar
@@ -399,7 +399,7 @@ Map<String, dynamic> _pesananUji({
     'id': id,
     'user_id': 7,
     'customer_name': 'Pelanggan Uji',
-    'customer_email': 'pelanggan@laundryku.test',
+    'customer_email': 'pelanggan@renova.test',
     'service_id': serviceId,
     'service_name': 'Cuci Kering Setrika',
     'service_duration': '2 hari',

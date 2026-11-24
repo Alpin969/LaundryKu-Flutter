@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../config/app_theme.dart';
 
-/// Enam status pesanan LaundryKu, sesuai kolom `status` di database dan
+/// Enam status pesanan RENOVA, sesuai kolom `status` di database dan
 /// `TRANSISI` di backend.
 ///
 /// Aturan perpindahan status disalin dari backend ke sini hanya untuk

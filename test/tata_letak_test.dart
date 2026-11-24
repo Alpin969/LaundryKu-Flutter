@@ -4,20 +4,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
-import 'package:laundryku/config/app_theme.dart';
-import 'package:laundryku/models/layanan.dart';
-import 'package:laundryku/models/pesanan.dart';
-import 'package:laundryku/models/status_pesanan.dart';
-import 'package:laundryku/screens/auth/login_screen.dart';
-import 'package:laundryku/screens/auth/register_screen.dart';
-import 'package:laundryku/screens/auth/splash_screen.dart';
-import 'package:laundryku/screens/customer/ubah_profil_screen.dart';
-import 'package:laundryku/widgets/app_logo.dart';
-import 'package:laundryku/widgets/baris_detail.dart';
-import 'package:laundryku/widgets/kartu_layanan.dart';
-import 'package:laundryku/widgets/kartu_pesanan.dart';
-import 'package:laundryku/widgets/lencana_status.dart';
-import 'package:laundryku/widgets/tampilan_status.dart';
+import 'package:renova/config/app_theme.dart';
+import 'package:renova/models/layanan.dart';
+import 'package:renova/models/pesanan.dart';
+import 'package:renova/models/status_pesanan.dart';
+import 'package:renova/screens/auth/login_screen.dart';
+import 'package:renova/screens/auth/register_screen.dart';
+import 'package:renova/screens/auth/splash_screen.dart';
+import 'package:renova/screens/customer/ubah_profil_screen.dart';
+import 'package:renova/widgets/app_logo.dart';
+import 'package:renova/widgets/baris_detail.dart';
+import 'package:renova/widgets/kartu_layanan.dart';
+import 'package:renova/widgets/kartu_pesanan.dart';
+import 'package:renova/widgets/lencana_status.dart';
+import 'package:renova/widgets/tampilan_status.dart';
 
 /// Pengujian tata letak pada berbagai ukuran layar.
 ///
@@ -115,7 +115,7 @@ void main() {
       id: 123,
       userId: 9,
       namaPelanggan: 'Nama Pelanggan Yang Panjang Sekali',
-      emailPelanggan: 'pelanggan-panjang@laundryku.test',
+      emailPelanggan: 'pelanggan-panjang@renova.test',
       serviceId: 4,
       namaLayanan: 'Cuci Kering Setrika Express',
       durasiLayanan: '3 hari',
@@ -132,7 +132,7 @@ void main() {
       id: 124,
       userId: 9,
       namaPelanggan: 'Nama Pelanggan Yang Panjang Sekali',
-      emailPelanggan: 'pelanggan-panjang@laundryku.test',
+      emailPelanggan: 'pelanggan-panjang@renova.test',
       serviceId: 4,
       namaLayanan: 'Cuci Kering Setrika Express',
       durasiLayanan: '3 hari',
@@ -256,7 +256,7 @@ void main() {
                   id: 7,
                   userId: 3,
                   namaPelanggan: 'Pelanggan',
-                  emailPelanggan: 'p@laundryku.test',
+                  emailPelanggan: 'p@renova.test',
                   serviceId: 1,
                   namaLayanan: 'Cuci Kering Setrika Express',
                   durasiLayanan: '3 hari',
@@ -300,7 +300,7 @@ void main() {
         Scaffold(
           body: TampilanGagal(
             pesan:
-                'Tidak bisa terhubung ke LaundryKu. Periksa koneksi internet '
+                'Tidak bisa terhubung ke RENOVA. Periksa koneksi internet '
                 'Anda, lalu coba lagi.',
             judul: 'Pesanan tidak bisa dimuat',
             onCobaLagi: () {},

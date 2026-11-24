@@ -1,4 +1,4 @@
-// Pengujian integrasi terhadap REST API LaundryKu yang benar-benar berjalan.
+// Pengujian integrasi terhadap REST API RENOVA yang benar-benar berjalan.
 //
 // Berbeda dari logika_test.dart yang berjalan sendiri, berkas ini memanggil
 // backend sungguhan, jadi backend harus hidup lebih dulu:
@@ -28,7 +28,7 @@
 // dijalankan sekitar dua kali dalam 15 menit, tidak lebih.
 //
 // Data uji dibuat memakai awalan "[UJI MOBILE]" dan surel berakhiran
-// "@laundryku.test" supaya mudah dikenali dan dibersihkan.
+// "@renova.test" supaya mudah dikenali dan dibersihkan.
 //
 // WAJIB dibersihkan setelah selesai, karena layanan uji ikut tampil di pilihan
 // layanan aplikasi bila dibiarkan di database:
@@ -44,15 +44,15 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart' show MediaType;
 import 'package:image_picker/image_picker.dart';
-import 'package:laundryku/config/api_config.dart';
-import 'package:laundryku/models/layanan.dart';
-import 'package:laundryku/models/pesanan.dart';
-import 'package:laundryku/models/status_pesanan.dart';
-import 'package:laundryku/models/user.dart';
-import 'package:laundryku/services/api_client.dart';
-import 'package:laundryku/services/auth_service.dart';
-import 'package:laundryku/services/layanan_service.dart';
-import 'package:laundryku/services/pesanan_service.dart';
+import 'package:renova/config/api_config.dart';
+import 'package:renova/models/layanan.dart';
+import 'package:renova/models/pesanan.dart';
+import 'package:renova/models/status_pesanan.dart';
+import 'package:renova/models/user.dart';
+import 'package:renova/services/api_client.dart';
+import 'package:renova/services/auth_service.dart';
+import 'package:renova/services/layanan_service.dart';
+import 'package:renova/services/pesanan_service.dart';
 
 const String _adminEmail = String.fromEnvironment('ADMIN_EMAIL');
 const String _adminPassword = String.fromEnvironment('ADMIN_PASSWORD');
@@ -72,7 +72,7 @@ Object? get _lewatiAdmin =>
 final String _tanda = DateTime.now().millisecondsSinceEpoch.toString();
 
 /// Akun pelanggan yang didaftarkan sendiri oleh pengujian ini.
-final String _emailPelanggan = 'uji-mobile-$_tanda@laundryku.test';
+final String _emailPelanggan = 'uji-mobile-$_tanda@renova.test';
 const String _sandiPelanggan = 'UjiMobile2026!';
 
 const LayananService _layananService = LayananService();
@@ -170,7 +170,7 @@ void main() {
         '/api/auth/register',
         body: <String, dynamic>{
           'name': 'Uji Peran',
-          'email': 'uji-peran-$_tanda@laundryku.test',
+          'email': 'uji-peran-$_tanda@renova.test',
           'password': _sandiPelanggan,
           'role': 'ADMIN',
         },
@@ -223,7 +223,7 @@ void main() {
           '/api/auth/register',
           body: <String, dynamic>{
             'name': 'Uji Pendek',
-            'email': 'uji-pendek-$_tanda@laundryku.test',
+            'email': 'uji-pendek-$_tanda@renova.test',
             'password': 'pendek',
           },
         );

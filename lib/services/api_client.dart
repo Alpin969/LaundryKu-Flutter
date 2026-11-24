@@ -7,7 +7,7 @@ import 'package:http_parser/http_parser.dart';
 
 import '../config/api_config.dart';
 
-/// Kesalahan yang berasal dari API LaundryKu, sudah dalam bentuk pesan yang
+/// Kesalahan yang berasal dari API RENOVA, sudah dalam bentuk pesan yang
 /// bisa dibaca pengguna.
 ///
 /// `message` diambil dari response backend apa adanya, jadi penjelasan seperti
@@ -37,7 +37,7 @@ class ApiException implements Exception {
   String toString() => pesan;
 }
 
-/// Satu-satunya pintu keluar aplikasi menuju REST API LaundryKu.
+/// Satu-satunya pintu keluar aplikasi menuju REST API RENOVA.
 ///
 /// Semua permintaan memakai kelas ini supaya penanganan token, status HTTP,
 /// dan kegagalan koneksi hanya ditulis satu kali.
@@ -210,7 +210,7 @@ class ApiClient {
       respons = await jalankan().timeout(_batasWaktu);
     } on TimeoutException {
       throw ApiException(
-        'LaundryKu tidak merespons dalam ${_batasWaktu.inSeconds} detik. '
+        'RENOVA tidak merespons dalam ${_batasWaktu.inSeconds} detik. '
         'Periksa koneksi internet lalu coba lagi.',
         kode: 'TIMEOUT',
       );
@@ -223,13 +223,13 @@ class ApiClient {
       // Pesannya sengaja tidak menyebut alamat API: yang perlu diketahui
       // pengguna hanya bahwa koneksinya bermasalah dan apa yang bisa dicoba.
       throw ApiException(
-        'Tidak bisa terhubung ke LaundryKu. Periksa koneksi internet Anda, '
+        'Tidak bisa terhubung ke RENOVA. Periksa koneksi internet Anda, '
         'lalu coba lagi.',
         kode: 'KONEKSI_GAGAL',
       );
     } on FormatException {
       throw ApiException(
-        'Aplikasi tidak bisa menghubungi layanan LaundryKu. '
+        'Aplikasi tidak bisa menghubungi layanan RENOVA. '
         'Coba lagi sebentar lagi.',
         kode: 'ALAMAT_TIDAK_SAH',
       );
@@ -242,7 +242,7 @@ class ApiClient {
       isi = jsonDecode(utf8.decode(respons.bodyBytes));
     } on FormatException {
       throw ApiException(
-        'Jawaban LaundryKu tidak dapat dibaca (HTTP ${respons.statusCode}). '
+        'Jawaban RENOVA tidak dapat dibaca (HTTP ${respons.statusCode}). '
         'Coba lagi sebentar lagi.',
         kode: 'JAWABAN_TIDAK_SAH',
         statusCode: respons.statusCode,
@@ -296,9 +296,9 @@ class ApiClient {
       case 429:
         return 'Terlalu banyak percobaan. Tunggu sebentar lalu coba lagi.';
       case 500:
-        return 'Terjadi kesalahan pada LaundryKu. Coba lagi beberapa saat lagi.';
+        return 'Terjadi kesalahan pada RENOVA. Coba lagi beberapa saat lagi.';
       case 503:
-        return 'LaundryKu sedang tidak bisa melayani permintaan. '
+        return 'RENOVA sedang tidak bisa melayani permintaan. '
             'Coba lagi beberapa saat lagi.';
       default:
         return 'Permintaan gagal dengan kode HTTP $statusCode.';

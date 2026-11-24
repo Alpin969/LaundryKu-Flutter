@@ -96,9 +96,9 @@ class DashboardAdminScreenState extends State<DashboardAdminScreen> {
             child: JudulTab(
               judul: 'Panel Admin',
               keterangan: widget.namaPengguna.isEmpty
-                  ? 'Ringkasan seluruh pesanan LaundryKu.'
+                  ? 'Ringkasan seluruh pesanan RENOVA.'
                   : 'Halo, ${widget.namaPengguna}. Berikut ringkasan seluruh '
-                        'pesanan LaundryKu.',
+                        'pesanan RENOVA.',
             ),
           ),
           SliverToBoxAdapter(child: _ringkasanTotal()),

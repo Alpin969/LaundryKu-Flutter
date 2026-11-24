@@ -27,7 +27,7 @@ enum PeranPengguna {
   }
 }
 
-/// Akun pengguna LaundryKu.
+/// Akun pengguna RENOVA.
 ///
 /// `password_hash` tidak pernah ada di sini karena backend tidak pernah
 /// mengirimkannya.

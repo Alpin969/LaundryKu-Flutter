@@ -26,17 +26,17 @@ Future<void> main() async {
   // lewat notifikasi AuthService ke seluruh halaman.
   unawaited(AuthService.instance.periksaSesi());
 
-  runApp(const AplikasiLaundryKu());
+  runApp(const AplikasiRenova());
 }
 
-class AplikasiLaundryKu extends StatefulWidget {
-  const AplikasiLaundryKu({super.key});
+class AplikasiRenova extends StatefulWidget {
+  const AplikasiRenova({super.key});
 
   @override
-  State<AplikasiLaundryKu> createState() => _AplikasiLaundryKuState();
+  State<AplikasiRenova> createState() => _AplikasiRenovaState();
 }
 
-class _AplikasiLaundryKuState extends State<AplikasiLaundryKu> {
+class _AplikasiRenovaState extends State<AplikasiRenova> {
   @override
   void initState() {
     super.initState();

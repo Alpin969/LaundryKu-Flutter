@@ -1,9 +1,9 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:laundryku/models/status_pesanan.dart';
-import 'package:laundryku/models/user.dart';
-import 'package:laundryku/services/api_client.dart';
-import 'package:laundryku/utils/format.dart';
-import 'package:laundryku/utils/validasi.dart';
+import 'package:renova/models/status_pesanan.dart';
+import 'package:renova/models/user.dart';
+import 'package:renova/services/api_client.dart';
+import 'package:renova/utils/format.dart';
+import 'package:renova/utils/validasi.dart';
 
 /// Pengujian logika yang tidak memerlukan server.
 ///

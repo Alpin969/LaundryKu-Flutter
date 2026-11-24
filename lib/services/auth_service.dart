@@ -23,7 +23,7 @@ class AuthService extends ChangeNotifier {
 
   static final AuthService instance = AuthService._();
 
-  static const String _kunciToken = 'laundryku_token';
+  static const String _kunciToken = 'renova_token';
 
   // v11 sudah memakai AES-GCM dengan pembungkusan kunci RSA secara bawaan
   // (lihat AndroidOptions.defaultOptions), termasuk resetOnError yang membuat

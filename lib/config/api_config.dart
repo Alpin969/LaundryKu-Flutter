@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 
-/// Alamat REST API LaundryKu.
+/// Alamat REST API RENOVA.
 ///
 /// Alamat diambil dari --dart-define supaya satu kode yang sama bisa dipakai
 /// untuk backend lokal maupun backend yang sudah online:

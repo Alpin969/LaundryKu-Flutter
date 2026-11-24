@@ -1,4 +1,4 @@
-package com.laundryku.laundryku
+package com.renova.renova
 
 import io.flutter.embedding.android.FlutterActivity
 

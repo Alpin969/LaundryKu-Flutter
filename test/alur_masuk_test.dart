@@ -25,18 +25,18 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:intl/date_symbol_data_local.dart';
-import 'package:laundryku/main.dart';
-import 'package:laundryku/screens/auth/login_screen.dart';
-import 'package:laundryku/screens/auth/register_screen.dart';
-import 'package:laundryku/screens/shells/shell_pelanggan.dart';
-import 'package:laundryku/services/api_client.dart';
-import 'package:laundryku/services/auth_service.dart';
+import 'package:renova/main.dart';
+import 'package:renova/screens/auth/login_screen.dart';
+import 'package:renova/screens/auth/register_screen.dart';
+import 'package:renova/screens/shells/shell_pelanggan.dart';
+import 'package:renova/services/api_client.dart';
+import 'package:renova/services/auth_service.dart';
 
 /// Akun yang dikembalikan klien buatan, bentuknya sama dengan backend.
 const Map<String, dynamic> _akun = <String, dynamic>{
   'id': 7,
   'name': 'Pelanggan Uji',
-  'email': 'pelanggan@laundryku.test',
+  'email': 'pelanggan@renova.test',
   'role': 'CUSTOMER',
   'created_at': '2026-11-16T10:00:00.000Z',
 };
@@ -75,7 +75,7 @@ void main() {
     expect(find.byType(LoginScreen), findsOneWidget);
 
     final Finder bidang = _bidangDi(LoginScreen);
-    await tester.enterText(bidang.at(0), 'pelanggan@laundryku.test');
+    await tester.enterText(bidang.at(0), 'pelanggan@renova.test');
     await tester.enterText(bidang.at(1), 'rahasia123');
     await tester.pump();
 
@@ -107,7 +107,7 @@ void main() {
 
     final Finder bidang = _bidangDi(RegisterScreen);
     await tester.enterText(bidang.at(0), 'Pelanggan Uji');
-    await tester.enterText(bidang.at(1), 'pelanggan@laundryku.test');
+    await tester.enterText(bidang.at(1), 'pelanggan@renova.test');
     await tester.enterText(bidang.at(2), 'rahasia123');
     await tester.enterText(bidang.at(3), 'rahasia123');
     await tester.pump();
@@ -136,7 +136,7 @@ Future<void> _pasangAplikasi(WidgetTester tester) async {
   tester.view.devicePixelRatio = 1.0;
   addTearDown(tester.view.reset);
 
-  await tester.pumpWidget(const AplikasiLaundryKu());
+  await tester.pumpWidget(const AplikasiRenova());
   await _tenang(tester);
 }
 
@@ -165,7 +165,7 @@ Future<void> _selesaikanPesan(WidgetTester tester) async {
   await tester.pump(const Duration(milliseconds: 400));
 }
 
-/// Klien HTTP buatan: menjawab seperti backend LaundryKu, tanpa jaringan.
+/// Klien HTTP buatan: menjawab seperti backend RENOVA, tanpa jaringan.
 MockClient _klienPalsu() {
   return MockClient((http.Request permintaan) async {
     final String jalur = permintaan.url.path;
