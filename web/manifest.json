@@ -1,11 +1,11 @@
 {
-    "name": "laundryku",
-    "short_name": "laundryku",
+    "name": "RENOVA",
+    "short_name": "RENOVA",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "Aplikasi mobile LaundryKu - pemesanan dan manajemen laundry",
+    "background_color": "#F8FAFC",
+    "theme_color": "#06B6D4",
+    "description": "RENOVA - Laundry Management Platform",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
