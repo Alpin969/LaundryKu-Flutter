@@ -28,9 +28,9 @@ class BarisDetail extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       color: warnaLatar,
-      padding: const EdgeInsets.symmetric(
-        horizontal: Jarak.md,
-        vertical: Jarak.sm,
+      padding: EdgeInsets.symmetric(
+        horizontal: warnaLatar == null ? 0 : Jarak.md,
+        vertical: warnaLatar == null ? 2 : Jarak.sm,
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -55,7 +55,7 @@ class BarisDetail extends StatelessWidget {
               textAlign: TextAlign.right,
               style: TextStyle(
                 fontSize: tebal ? 16 : 13.5,
-                fontWeight: tebal ? FontWeight.w700 : FontWeight.w600,
+                fontWeight: tebal ? FontWeight.w800 : FontWeight.w600,
                 color: tebal ? Warna.primary : Warna.teksUtama,
                 height: 1.5,
               ),
@@ -67,7 +67,10 @@ class BarisDetail extends StatelessWidget {
   }
 }
 
-/// Kartu dengan judul di atas isinya.
+/// Kartu dengan judul kecil di atas isinya.
+///
+/// Judul memakai huruf besar berspasi sempit supaya terbaca sebagai label
+/// bagian, bukan sebagai judul halaman kedua.
 class KartuBagian extends StatelessWidget {
   const KartuBagian({
     super.key,
@@ -85,6 +88,7 @@ class KartuBagian extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      width: double.infinity,
       decoration: BoxDecoration(
         color: Warna.permukaan,
         borderRadius: BorderRadius.circular(Sudut.kartu),
@@ -98,17 +102,18 @@ class KartuBagian extends StatelessWidget {
               Jarak.lg,
               Jarak.lg,
               Jarak.md,
-              Jarak.md,
+              Jarak.sm,
             ),
             child: Row(
               children: <Widget>[
                 Expanded(
                   child: Text(
-                    judul,
+                    judul.toUpperCase(),
                     style: const TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                      color: Warna.teksUtama,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                      color: Warna.teksSamar,
+                      letterSpacing: 0.8,
                     ),
                   ),
                 ),
@@ -116,9 +121,13 @@ class KartuBagian extends StatelessWidget {
               ],
             ),
           ),
-          const Divider(height: 1, color: Warna.garis),
           Padding(
-            padding: const EdgeInsets.all(Jarak.lg),
+            padding: const EdgeInsets.fromLTRB(
+              Jarak.lg,
+              0,
+              Jarak.lg,
+              Jarak.lg,
+            ),
             child: anak,
           ),
         ],

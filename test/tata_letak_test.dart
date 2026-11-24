@@ -376,17 +376,18 @@ void main() {
   });
 }
 
-/// Memuat berkas font Poppins yang dipakai aplikasi ke dalam lingkungan
-/// pengujian, supaya lebar teks yang diukur sama dengan lebar teks aslinya.
+/// Memuat berkas font yang dipakai aplikasi ke dalam lingkungan pengujian,
+/// supaya lebar teks yang diukur sama dengan lebar teks aslinya.
 Future<void> _muatFontPoppins() async {
   const List<String> berkas = <String>[
-    'assets/fonts/Poppins-Regular.ttf',
-    'assets/fonts/Poppins-Medium.ttf',
-    'assets/fonts/Poppins-SemiBold.ttf',
-    'assets/fonts/Poppins-Bold.ttf',
+    'assets/fonts/PlusJakartaSans-Regular.ttf',
+    'assets/fonts/PlusJakartaSans-Medium.ttf',
+    'assets/fonts/PlusJakartaSans-SemiBold.ttf',
+    'assets/fonts/PlusJakartaSans-Bold.ttf',
+    'assets/fonts/PlusJakartaSans-ExtraBold.ttf',
   ];
 
-  final FontLoader pemuat = FontLoader('Poppins');
+  final FontLoader pemuat = FontLoader('PlusJakartaSans');
 
   for (final String jalur in berkas) {
     final Uint8List isi = await File(jalur).readAsBytes();

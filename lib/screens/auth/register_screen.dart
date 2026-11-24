@@ -4,12 +4,13 @@ import '../../config/app_theme.dart';
 import '../../services/api_client.dart';
 import '../../services/auth_service.dart';
 import '../../utils/validasi.dart';
+import '../../widgets/app_logo.dart';
 import '../../widgets/pesan_ui.dart';
 
 /// Pendaftaran akun pelanggan baru.
 ///
 /// Form ini tidak punya pilihan role: setiap akun baru dari aplikasi selalu
-/// berperan pelanggan. Akun admin hanya dibuat oleh pengelola LaundryKu.
+/// berperan pelanggan. Akun admin hanya dibuat oleh pengelola laundry.
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
 
@@ -85,7 +86,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
       tampilkanPesanLewat(
         messenger,
-        'Pendaftaran berhasil. Selamat datang di LaundryKu.',
+        'Pendaftaran berhasil. Selamat datang di RENOVA.',
         jenis: JenisPesan.sukses,
       );
     } on ApiException catch (kesalahan) {
@@ -115,20 +116,36 @@ class _RegisterScreenState extends State<RegisterScreen> {
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.all(Jarak.xl),
+            padding: const EdgeInsets.fromLTRB(
+              Jarak.xl,
+              Jarak.sm,
+              Jarak.xl,
+              Jarak.xl,
+            ),
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 460),
               child: Form(
                 key: _kunciForm,
                 autovalidateMode: _modeValidasi,
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: <Widget>[
+                    const Center(child: AppLogo(ukuran: 56)),
+                    const SizedBox(height: Jarak.md),
+                    const Center(
+                      child: NamaAplikasi(
+                        ukuranJudul: 21,
+                        rataTengah: true,
+                        tampilkanSlogan: false,
+                      ),
+                    ),
+                    const SizedBox(height: Jarak.xl),
+
                     const Text(
                       'Buat akun pelanggan',
                       style: TextStyle(
                         fontSize: 20,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w700,
                         color: Warna.teksUtama,
                       ),
                     ),
@@ -144,26 +161,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
 
                     const SizedBox(height: Jarak.lg),
-                    Container(
-                      padding: const EdgeInsets.all(Jarak.md),
-                      decoration: BoxDecoration(
-                        color: Warna.aksenLembut,
-                        borderRadius: BorderRadius.circular(Sudut.kolomIsian),
-                      ),
-                      child: const Text(
-                        'Pendaftaran ini untuk akun pelanggan. Akun '
-                        'petugas laundry diberikan oleh pengelola.',
-                        style: TextStyle(
-                          fontSize: 12.5,
-                          color: Warna.primaryGelap,
-                          height: 1.5,
-                        ),
-                      ),
+                    _Catatan(
+                      ikon: Icons.info_outline_rounded,
+                      teks:
+                          'Pendaftaran ini untuk akun pelanggan. Akun petugas '
+                          'laundry diberikan oleh pengelola.',
                     ),
 
                     if (_pesanGagal != null) ...<Widget>[
                       const SizedBox(height: Jarak.lg),
-                      _KotakGagal(pesan: _pesanGagal!),
+                      _Catatan(
+                        ikon: Icons.error_outline_rounded,
+                        teks: _pesanGagal!,
+                        berbahaya: true,
+                      ),
                     ],
 
                     const SizedBox(height: Jarak.xl),
@@ -177,6 +188,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       decoration: const InputDecoration(
                         labelText: 'Nama lengkap',
                         hintText: 'Nama sesuai identitas Anda',
+                        prefixIcon: Icon(Icons.person_outline_rounded),
                       ),
                       validator: Validasi.namaLengkap,
                       onFieldSubmitted: (_) => _fokusEmail.requestFocus(),
@@ -194,6 +206,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       decoration: const InputDecoration(
                         labelText: 'Email',
                         hintText: 'nama@email.com',
+                        prefixIcon: Icon(Icons.mail_outline_rounded),
                       ),
                       validator: Validasi.email,
                       onFieldSubmitted: (_) => _fokusPassword.requestFocus(),
@@ -211,6 +224,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         labelText: 'Kata sandi',
                         helperText:
                             'Minimal ${Validasi.panjangPasswordMin} karakter.',
+                        prefixIcon: const Icon(Icons.lock_outline_rounded),
                         suffixIcon: IconButton(
                           onPressed: () => setState(
                             () => _passwordTersembunyi = !_passwordTersembunyi,
@@ -239,6 +253,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       textInputAction: TextInputAction.done,
                       decoration: InputDecoration(
                         labelText: 'Konfirmasi kata sandi',
+                        prefixIcon: const Icon(Icons.lock_reset_rounded),
                         suffixIcon: IconButton(
                           onPressed: () => setState(
                             () => _konfirmasiTersembunyi =
@@ -306,27 +321,43 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 }
 
-class _KotakGagal extends StatelessWidget {
-  const _KotakGagal({required this.pesan});
+/// Kotak keterangan kecil dengan ikon, dipakai untuk info maupun kegagalan.
+class _Catatan extends StatelessWidget {
+  const _Catatan({
+    required this.ikon,
+    required this.teks,
+    this.berbahaya = false,
+  });
 
-  final String pesan;
+  final IconData ikon;
+  final String teks;
+  final bool berbahaya;
 
   @override
   Widget build(BuildContext context) {
+    final Color warna = berbahaya ? Warna.bahaya : Warna.primaryGelap;
+
     return Container(
-      width: double.infinity,
       padding: const EdgeInsets.all(Jarak.md),
       decoration: BoxDecoration(
-        color: Warna.bahayaMuda,
+        color: berbahaya ? Warna.bahayaMuda : Warna.aksenLembut,
         borderRadius: BorderRadius.circular(Sudut.kolomIsian),
-      ),
-      child: Text(
-        pesan,
-        style: const TextStyle(
-          fontSize: 13,
-          color: Warna.bahaya,
-          height: 1.5,
+        border: Border.all(
+          color: berbahaya ? const Color(0xFFFECACA) : const Color(0xFFA5F3FC),
         ),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Icon(ikon, size: 17, color: warna),
+          const SizedBox(width: Jarak.sm),
+          Expanded(
+            child: Text(
+              teks,
+              style: TextStyle(fontSize: 12.5, color: warna, height: 1.5),
+            ),
+          ),
+        ],
       ),
     );
   }

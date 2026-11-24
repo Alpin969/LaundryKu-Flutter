@@ -4,6 +4,7 @@ import '../../config/app_theme.dart';
 import '../../models/user.dart';
 import '../../services/auth_service.dart';
 import '../../utils/format.dart';
+import '../../widgets/app_logo.dart';
 import '../../widgets/baris_detail.dart';
 import '../../widgets/pesan_ui.dart';
 import 'ubah_profil_screen.dart';
@@ -71,13 +72,25 @@ class ProfilScreenState extends State<ProfilScreen> {
       onRefresh: muatUlang,
       child: ListView(
         physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.fromLTRB(Jarak.xl, Jarak.lg, Jarak.xl, Jarak.xxl),
+        padding: const EdgeInsets.fromLTRB(
+          Jarak.xl,
+          Jarak.lg,
+          Jarak.xl,
+          Jarak.xxl,
+        ),
         children: <Widget>[
           _kepala(pengguna),
+          const SizedBox(height: Jarak.lg),
+
+          FilledButton(
+            onPressed: _bukaUbahProfil,
+            child: const Text('Ubah Profil'),
+          ),
+
           const SizedBox(height: Jarak.xl),
 
           KartuBagian(
-            judul: 'Informasi Akun',
+            judul: 'Informasi akun',
             anak: Column(
               children: <Widget>[
                 BarisDetail(
@@ -109,28 +122,26 @@ class ProfilScreenState extends State<ProfilScreen> {
 
           const SizedBox(height: Jarak.lg),
 
-          FilledButton(
-            onPressed: _bukaUbahProfil,
-            child: const Text('Ubah Profil'),
-          ),
-
-          const SizedBox(height: Jarak.xl),
-
           KartuBagian(
-            judul: 'Tentang Aplikasi',
+            judul: 'Tentang aplikasi',
             anak: Column(
               children: <Widget>[
-                const BarisDetail(label: 'Aplikasi', nilai: 'LaundryKu'),
-                const SizedBox(height: Jarak.sm),
                 const BarisDetail(
-                  label: 'Slogan',
-                  nilai: 'Bersih, Praktis, Terpercaya',
+                  label: 'Aplikasi',
+                  nilai: NamaAplikasi.nama,
                 ),
                 const SizedBox(height: Jarak.sm),
                 const BarisDetail(
-                  label: 'Versi',
-                  nilai: '1.0.0',
+                  label: 'Jenis',
+                  nilai: NamaAplikasi.deskripsi,
                 ),
+                const SizedBox(height: Jarak.sm),
+                const BarisDetail(
+                  label: 'Tagline',
+                  nilai: NamaAplikasi.slogan,
+                ),
+                const SizedBox(height: Jarak.sm),
+                const BarisDetail(label: 'Versi', nilai: '1.0.0'),
               ],
             ),
           ),
@@ -140,7 +151,14 @@ class ProfilScreenState extends State<ProfilScreen> {
           OutlinedButton(
             onPressed: _keluar,
             style: OutlinedButton.styleFrom(foregroundColor: Warna.bahaya),
-            child: const Text('Keluar'),
+            child: const Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Icon(Icons.logout_rounded, size: 18),
+                SizedBox(width: Jarak.sm),
+                Text('Keluar'),
+              ],
+            ),
           ),
 
           const SizedBox(height: Jarak.lg),
@@ -151,6 +169,7 @@ class ProfilScreenState extends State<ProfilScreen> {
 
   Widget _kepala(User? pengguna) {
     return Container(
+      width: double.infinity,
       padding: const EdgeInsets.all(Jarak.lg),
       decoration: BoxDecoration(
         color: Warna.permukaan,
@@ -163,15 +182,16 @@ class ProfilScreenState extends State<ProfilScreen> {
             width: 58,
             height: 58,
             alignment: Alignment.center,
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               color: Warna.aksen,
               shape: BoxShape.circle,
+              border: Border.all(color: const Color(0xFFA5F3FC), width: 2),
             ),
             child: Text(
               pengguna?.inisial ?? '?',
               style: const TextStyle(
                 fontSize: 20,
-                fontWeight: FontWeight.w700,
+                fontWeight: FontWeight.w800,
                 color: Warna.primary,
               ),
             ),
@@ -195,6 +215,8 @@ class ProfilScreenState extends State<ProfilScreen> {
                 const SizedBox(height: 2),
                 Text(
                   pengguna?.email ?? '-',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
                     fontSize: 12.5,
                     color: Warna.teksKedua,
@@ -216,7 +238,7 @@ class ProfilScreenState extends State<ProfilScreen> {
                     pengguna?.peran.label ?? '-',
                     style: TextStyle(
                       fontSize: 11.5,
-                      fontWeight: FontWeight.w600,
+                      fontWeight: FontWeight.w700,
                       color: pengguna?.adalahAdmin == true
                           ? Warna.peringatan
                           : Warna.primary,

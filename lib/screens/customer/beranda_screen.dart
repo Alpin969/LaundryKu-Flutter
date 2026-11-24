@@ -3,8 +3,10 @@ import 'package:flutter/material.dart';
 import '../../config/app_theme.dart';
 import '../../models/layanan.dart';
 import '../../services/api_client.dart';
+import '../../services/auth_service.dart';
 import '../../services/keranjang_service.dart';
 import '../../services/layanan_service.dart';
+import '../../widgets/app_logo.dart';
 import '../../widgets/kartu_layanan.dart';
 import '../../widgets/tampilan_status.dart';
 import 'detail_layanan_screen.dart';
@@ -21,10 +23,10 @@ String sapaanSekarang() {
 
 /// Beranda pelanggan.
 ///
-/// Isinya sapaan, pintu masuk keranjang di pojok kanan atas, dan daftar
-/// layanan laundry beserta harganya. Pesanan yang sudah dibuat tidak
-/// ditampilkan di sini karena sudah punya tabnya sendiri (Pesanan dan
-/// Riwayat).
+/// Susunannya dari atas ke bawah: kepala brand dengan pintu masuk keranjang,
+/// kartu sambutan, lalu daftar layanan laundry beserta harganya. Pesanan yang
+/// sudah dibuat tidak ditampilkan di sini karena sudah punya tabnya sendiri
+/// (Pesanan dan Riwayat).
 class BerandaScreen extends StatefulWidget {
   const BerandaScreen({super.key, required this.namaPengguna});
 
@@ -88,6 +90,7 @@ class BerandaScreenState extends State<BerandaScreen> {
         physics: const AlwaysScrollableScrollPhysics(),
         slivers: <Widget>[
           SliverToBoxAdapter(child: _kepala()),
+          SliverToBoxAdapter(child: _kartuSambutan()),
           SliverToBoxAdapter(child: _judulLayanan()),
           SliverToBoxAdapter(child: _isiLayanan()),
           const SliverToBoxAdapter(child: SizedBox(height: Jarak.xxl)),
@@ -96,37 +99,24 @@ class BerandaScreenState extends State<BerandaScreen> {
     );
   }
 
-  /// Kepala beranda: sapaan di kiri, pintu masuk keranjang di kanan.
+  /// Kepala beranda: merek di kiri, pintu masuk keranjang di kanan.
   Widget _kepala() {
     return Padding(
       padding: const EdgeInsets.fromLTRB(Jarak.xl, Jarak.lg, Jarak.md, 0),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Text(
-                  '${sapaanSekarang()},',
-                  style: const TextStyle(
-                    fontSize: 13.5,
-                    color: Warna.teksKedua,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  widget.namaPengguna.isEmpty
-                      ? 'Pelanggan'
-                      : widget.namaPengguna,
-                  style: const TextStyle(
-                    fontSize: 21,
-                    fontWeight: FontWeight.w700,
-                    color: Warna.teksUtama,
-                    height: 1.25,
-                  ),
-                ),
-              ],
+          const AppLogo(ukuran: 36),
+          const SizedBox(width: Jarak.sm),
+          const Expanded(
+            child: Text(
+              NamaAplikasi.nama,
+              style: TextStyle(
+                fontSize: 17,
+                fontWeight: FontWeight.w800,
+                color: Warna.teksUtama,
+                letterSpacing: 1.6,
+              ),
             ),
           ),
           _tombolKeranjang(),
@@ -148,10 +138,14 @@ class BerandaScreenState extends State<BerandaScreen> {
         return IconButton(
           onPressed: _bukaKeranjang,
           tooltip: 'Keranjang',
+          style: IconButton.styleFrom(
+            backgroundColor: jumlah > 0 ? Warna.aksenLembut : null,
+          ),
           icon: Badge(
             isLabelVisible: jumlah > 0,
+            backgroundColor: Warna.primary,
             label: Text('$jumlah'),
-            child: const Icon(Icons.shopping_cart_outlined),
+            child: const Icon(Icons.shopping_bag_outlined),
           ),
         );
       },
@@ -161,6 +155,79 @@ class BerandaScreenState extends State<BerandaScreen> {
   Future<void> _bukaKeranjang() async {
     await Navigator.of(context).push(
       MaterialPageRoute<void>(builder: (_) => const KeranjangScreen()),
+    );
+  }
+
+  /// Kartu sambutan: nama pelanggan dan janji singkat layanan.
+  Widget _kartuSambutan() {
+    final String nama = AuthService.instance.pengguna?.nama ?? '';
+    final String panggilan = widget.namaPengguna.isNotEmpty
+        ? widget.namaPengguna
+        : (nama.isNotEmpty ? nama : 'Pelanggan');
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(Jarak.xl, Jarak.lg, Jarak.xl, 0),
+      child: Container(
+        padding: const EdgeInsets.all(Jarak.lg),
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: <Color>[Warna.primary, Warna.primaryGelap],
+          ),
+          borderRadius: BorderRadius.circular(Sudut.kartu),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Text(
+              sapaanSekarang(),
+              style: TextStyle(
+                fontSize: 12.5,
+                color: Colors.white.withValues(alpha: 0.82),
+              ),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              panggilan,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w700,
+                color: Colors.white,
+                height: 1.25,
+              ),
+            ),
+            const SizedBox(height: Jarak.md),
+            Container(
+              height: 1,
+              color: Colors.white.withValues(alpha: 0.18),
+            ),
+            const SizedBox(height: Jarak.md),
+            Row(
+              children: <Widget>[
+                const Icon(
+                  Icons.eco_outlined,
+                  size: 16,
+                  color: Warna.aksen,
+                ),
+                const SizedBox(width: Jarak.sm),
+                Expanded(
+                  child: Text(
+                    NamaAplikasi.slogan,
+                    style: const TextStyle(
+                      fontSize: 12.5,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -179,14 +246,14 @@ class BerandaScreenState extends State<BerandaScreen> {
             'Layanan Laundry',
             style: TextStyle(
               fontSize: 16,
-              fontWeight: FontWeight.w600,
+              fontWeight: FontWeight.w700,
               color: Warna.teksUtama,
             ),
           ),
           SizedBox(height: Jarak.xs),
           Text(
-            'Harga per kilogram dan estimasi pengerjaan yang berlaku '
-            'di LaundryKu.',
+            'Harga per kilogram dan estimasi pengerjaan yang berlaku di '
+            'RENOVA.',
             style: TextStyle(
               fontSize: 13,
               color: Warna.teksKedua,

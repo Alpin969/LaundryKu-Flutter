@@ -110,7 +110,7 @@ class DaftarPesananScreenState extends State<DaftarPesananScreen> {
         ];
 
     return SizedBox(
-      height: 58,
+      height: 56,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(
@@ -121,10 +121,22 @@ class DaftarPesananScreenState extends State<DaftarPesananScreen> {
         separatorBuilder: (_, _) => const SizedBox(width: Jarak.sm),
         itemBuilder: (BuildContext context, int index) {
           final ({StatusPesanan? nilai, String label}) item = pilihan[index];
+          final bool terpilih = _saring == item.nilai;
 
           return ChoiceChip(
             label: Text(item.label),
-            selected: _saring == item.nilai,
+            selected: terpilih,
+            showCheckmark: false,
+            selectedColor: Warna.primary,
+            backgroundColor: Warna.permukaan,
+            side: BorderSide(
+              color: terpilih ? Warna.primary : Warna.garis,
+            ),
+            labelStyle: TextStyle(
+              fontSize: 12.5,
+              fontWeight: terpilih ? FontWeight.w700 : FontWeight.w500,
+              color: terpilih ? Colors.white : Warna.teksKedua,
+            ),
             onSelected: (_) => terapkanSaring(item.nilai),
           );
         },

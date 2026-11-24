@@ -25,15 +25,26 @@ class LencanaStatus extends StatelessWidget {
       decoration: BoxDecoration(
         color: status.warnaLatar,
         borderRadius: BorderRadius.circular(Sudut.pil),
+        border: Border.all(color: status.warnaTeks.withValues(alpha: 0.22)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
+          // Titik warna mempercepat pembacaan, teks tetap sumber utamanya.
+          Container(
+            width: 6,
+            height: 6,
+            margin: const EdgeInsets.only(right: 5),
+            decoration: BoxDecoration(
+              color: status.warnaTeks,
+              shape: BoxShape.circle,
+            ),
+          ),
           Text(
             status.label,
             style: TextStyle(
-              fontSize: ringkas ? 11.5 : 12.5,
-              fontWeight: FontWeight.w600,
+              fontSize: ringkas ? 11 : 12,
+              fontWeight: FontWeight.w700,
               color: status.warnaTeks,
             ),
           ),
@@ -43,11 +54,11 @@ class LencanaStatus extends StatelessWidget {
   }
 }
 
-/// Tahapan pesanan sebagai penunjuk kemajuan.
+/// Tahapan pesanan sebagai garis waktu.
 ///
-/// Menampilkan empat tahap utama, dari menunggu konfirmasi sampai selesai.
-/// Untuk pesanan yang dibatalkan, penunjuk ini tidak ditampilkan karena
-/// alurnya tidak lagi maju.
+/// Menampilkan lima tahap utama, dari menunggu konfirmasi sampai selesai.
+/// Untuk pesanan yang dibatalkan, garis waktu diganti keterangan pembatalan
+/// karena alurnya tidak lagi maju.
 class TahapanPesanan extends StatelessWidget {
   const TahapanPesanan({super.key, required this.status});
 
@@ -70,10 +81,28 @@ class TahapanPesanan extends StatelessWidget {
         decoration: BoxDecoration(
           color: Warna.bahayaMuda,
           borderRadius: BorderRadius.circular(Sudut.kartu),
+          border: Border.all(color: const Color(0xFFFECACA)),
         ),
-        child: const Text(
-          'Pesanan ini dibatalkan, jadi prosesnya tidak dilanjutkan.',
-          style: TextStyle(fontSize: 13, color: Warna.bahaya, height: 1.5),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            const Icon(
+              Icons.cancel_outlined,
+              size: 18,
+              color: Warna.bahaya,
+            ),
+            const SizedBox(width: Jarak.sm),
+            const Expanded(
+              child: Text(
+                'Pesanan ini dibatalkan, jadi prosesnya tidak dilanjutkan.',
+                style: TextStyle(
+                  fontSize: 13,
+                  color: Warna.bahaya,
+                  height: 1.5,
+                ),
+              ),
+            ),
+          ],
         ),
       );
     }
@@ -123,31 +152,31 @@ class _BarisTahap extends StatelessWidget {
     // ditandai lingkaran berisi, dan tahap berikutnya masih abu-abu.
     final Color warna = sedang
         ? Warna.primary
-        : (sudah ? Warna.sukses : Warna.garis);
+        : (sudah ? Warna.sukses : Warna.garisTegas);
 
     return IntrinsicHeight(
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
           SizedBox(
-            width: 24,
+            width: 26,
             child: Column(
               children: <Widget>[
                 Container(
-                  width: 22,
-                  height: 22,
+                  width: sedang ? 24 : 20,
+                  height: sedang ? 24 : 20,
                   decoration: BoxDecoration(
                     color: sudah || sedang ? warna : Warna.permukaan,
                     shape: BoxShape.circle,
                     border: Border.all(
-                      color: sudah || sedang ? warna : Warna.garis,
+                      color: sudah || sedang ? warna : Warna.garisTegas,
                       width: 2,
                     ),
                   ),
                   child: sudah
                       ? const Icon(
                           Icons.check_rounded,
-                          size: 14,
+                          size: 13,
                           color: Colors.white,
                         )
                       : (sedang
@@ -179,13 +208,15 @@ class _BarisTahap extends StatelessWidget {
           const SizedBox(width: Jarak.md),
           Expanded(
             child: Padding(
-              padding: EdgeInsets.only(top: 1, bottom: terakhir ? 0 : Jarak.lg),
+              padding: EdgeInsets.only(top: 2, bottom: terakhir ? 0 : Jarak.lg),
               child: Text(
                 label,
                 style: TextStyle(
                   fontSize: 13.5,
-                  fontWeight: sedang ? FontWeight.w600 : FontWeight.w500,
-                  color: sedang || sudah ? Warna.teksUtama : Warna.teksSamar,
+                  fontWeight: sedang ? FontWeight.w700 : FontWeight.w500,
+                  color: sedang
+                      ? Warna.primary
+                      : (sudah ? Warna.teksUtama : Warna.teksSamar),
                 ),
               ),
             ),

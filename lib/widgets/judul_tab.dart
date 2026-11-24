@@ -38,10 +38,11 @@ class JudulTab extends StatelessWidget {
                 Text(
                   judul,
                   style: const TextStyle(
-                    fontSize: 19,
-                    fontWeight: FontWeight.w700,
+                    fontSize: 20,
+                    fontWeight: FontWeight.w800,
                     color: Warna.teksUtama,
                     height: 1.3,
+                    letterSpacing: -0.2,
                   ),
                 ),
                 if (keterangan != null) ...<Widget>[

@@ -144,17 +144,28 @@ class RiwayatScreenState extends State<RiwayatScreen> {
                     Text(
                       entri.key,
                       style: const TextStyle(
-                        fontSize: 13.5,
-                        fontWeight: FontWeight.w600,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
                         color: Warna.teksUtama,
+                        letterSpacing: 0.2,
                       ),
                     ),
                     const SizedBox(width: Jarak.sm),
-                    Text(
-                      '(${entri.value.length} pesanan)',
-                      style: const TextStyle(
-                        fontSize: 12.5,
-                        color: Warna.teksSamar,
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: Jarak.sm,
+                        vertical: 1,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Warna.latar,
+                        borderRadius: BorderRadius.circular(Sudut.pil),
+                      ),
+                      child: Text(
+                        '${entri.value.length} pesanan',
+                        style: const TextStyle(
+                          fontSize: 11.5,
+                          color: Warna.teksSamar,
+                        ),
                       ),
                     ),
                   ],
@@ -208,6 +219,12 @@ class RiwayatScreenState extends State<RiwayatScreen> {
           Row(
             children: <Widget>[
               Expanded(child: _statistik('Selesai', '$selesai')),
+              Container(
+                width: 1,
+                height: 32,
+                color: Warna.garis,
+                margin: const EdgeInsets.symmetric(horizontal: Jarak.md),
+              ),
               Expanded(child: _statistik('Dibatalkan', '$dibatalkan')),
             ],
           ),
@@ -225,8 +242,8 @@ class RiwayatScreenState extends State<RiwayatScreen> {
               Text(
                 formatRupiah(total),
                 style: const TextStyle(
-                  fontSize: 14.5,
-                  fontWeight: FontWeight.w700,
+                  fontSize: 15,
+                  fontWeight: FontWeight.w800,
                   color: Warna.primary,
                 ),
               ),
@@ -244,8 +261,8 @@ class RiwayatScreenState extends State<RiwayatScreen> {
         Text(
           nilai,
           style: const TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.w700,
+            fontSize: 22,
+            fontWeight: FontWeight.w800,
             color: Warna.teksUtama,
             height: 1.15,
           ),

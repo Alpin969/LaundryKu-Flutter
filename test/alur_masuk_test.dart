@@ -225,19 +225,20 @@ http.Response _balas(int kode, Object isi) {
   );
 }
 
-/// Memuat font Poppins asli ke dalam pengujian.
+/// Memuat font asli ke dalam pengujian.
 ///
 /// Sama seperti yang dilakukan `tata_letak_test.dart`: pengukuran teks dengan
 /// font bawaan flutter_test tidak mewakili tampilan sebenarnya.
 Future<void> _muatFontPoppins() async {
   const List<String> berkas = <String>[
-    'assets/fonts/Poppins-Regular.ttf',
-    'assets/fonts/Poppins-Medium.ttf',
-    'assets/fonts/Poppins-SemiBold.ttf',
-    'assets/fonts/Poppins-Bold.ttf',
+    'assets/fonts/PlusJakartaSans-Regular.ttf',
+    'assets/fonts/PlusJakartaSans-Medium.ttf',
+    'assets/fonts/PlusJakartaSans-SemiBold.ttf',
+    'assets/fonts/PlusJakartaSans-Bold.ttf',
+    'assets/fonts/PlusJakartaSans-ExtraBold.ttf',
   ];
 
-  final FontLoader pemuat = FontLoader('Poppins');
+  final FontLoader pemuat = FontLoader('PlusJakartaSans');
 
   for (final String jalur in berkas) {
     final Uint8List isi = await File(jalur).readAsBytes();

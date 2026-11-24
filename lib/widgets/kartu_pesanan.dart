@@ -56,11 +56,12 @@ class KartuPesanan extends StatelessWidget {
                           runSpacing: Jarak.xs,
                           children: <Widget>[
                             Text(
-                              'Pesanan #${pesanan.id}',
+                              '#${pesanan.id}',
                               style: const TextStyle(
-                                fontSize: 12.5,
-                                fontWeight: FontWeight.w600,
-                                color: Warna.teksKedua,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w700,
+                                color: Warna.teksSamar,
+                                letterSpacing: 0.3,
                               ),
                             ),
                             LencanaStatus(
@@ -69,18 +70,20 @@ class KartuPesanan extends StatelessWidget {
                             ),
                           ],
                         ),
-                        const SizedBox(height: Jarak.sm),
+                        const SizedBox(height: Jarak.xs),
                         Text(
                           pesanan.namaLayanan,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
                             fontSize: 15,
-                            fontWeight: FontWeight.w600,
+                            fontWeight: FontWeight.w700,
                             color: Warna.teksUtama,
                             height: 1.35,
                           ),
                         ),
                         if (tampilkanPelanggan) ...<Widget>[
-                          const SizedBox(height: Jarak.xs),
+                          const SizedBox(height: 2),
                           Text(
                             pesanan.namaPelanggan,
                             maxLines: 1,
@@ -98,36 +101,54 @@ class KartuPesanan extends StatelessWidget {
               ),
 
               const SizedBox(height: Jarak.md),
-              const Divider(height: 1, color: Warna.garis),
-              const SizedBox(height: Jarak.md),
-
-              Row(
-                children: <Widget>[
-                  Expanded(
-                    child: _InfoKecil(
-                      label: 'Berat',
-                      nilai: pesanan.beratAktual == null
-                          ? '${formatBerat(pesanan.beratPerkiraan)} (perkiraan)'
-                          : formatBerat(pesanan.beratAktual),
+              Container(
+                padding: const EdgeInsets.all(Jarak.md),
+                decoration: BoxDecoration(
+                  color: Warna.latar,
+                  borderRadius: BorderRadius.circular(Sudut.kolomIsian),
+                ),
+                child: Row(
+                  children: <Widget>[
+                    Expanded(
+                      child: _InfoKecil(
+                        label: 'Berat',
+                        nilai: pesanan.beratAktual == null
+                            ? '${formatBerat(pesanan.beratPerkiraan)} (perkiraan)'
+                            : formatBerat(pesanan.beratAktual),
+                      ),
                     ),
-                  ),
-                  Expanded(
-                    child: _InfoKecil(
-                      label: 'Total',
-                      nilai: pesanan.hargaSudahFinal
-                          ? formatRupiah(pesanan.totalHarga)
-                          : 'Menunggu berat asli',
-                      warnaNilai: pesanan.hargaSudahFinal
-                          ? Warna.teksUtama
-                          : Warna.teksSamar,
+                    Container(
+                      width: 1,
+                      height: 28,
+                      color: Warna.garis,
+                      margin: const EdgeInsets.symmetric(
+                        horizontal: Jarak.md,
+                      ),
                     ),
-                  ),
-                ],
+                    Expanded(
+                      child: _InfoKecil(
+                        label: 'Total',
+                        nilai: pesanan.hargaSudahFinal
+                            ? formatRupiah(pesanan.totalHarga)
+                            : 'Menunggu berat asli',
+                        warnaNilai: pesanan.hargaSudahFinal
+                            ? Warna.primary
+                            : Warna.teksSamar,
+                      ),
+                    ),
+                  ],
+                ),
               ),
 
               const SizedBox(height: Jarak.md),
               Row(
                 children: <Widget>[
+                  const Icon(
+                    Icons.schedule_rounded,
+                    size: 13,
+                    color: Warna.teksSamar,
+                  ),
+                  const SizedBox(width: 4),
                   Text(
                     formatWaktuLalu(pesanan.dibuatPada),
                     style: const TextStyle(
@@ -141,17 +162,23 @@ class KartuPesanan extends StatelessWidget {
                   // uangnya belum diterima, langsung dari daftar.
                   if (pesanan.statusPembayaran ==
                       StatusPembayaran.belumDibayar) ...<Widget>[
-                    const Text(
-                      'Belum dibayar',
-                      style: TextStyle(fontSize: 12, color: Warna.peringatan),
-                    ),
-                    if (pesanan.adaFoto) const SizedBox(width: Jarak.md),
-                  ],
-
-                  if (pesanan.adaFoto) ...<Widget>[
-                    const Text(
-                      'Ada foto',
-                      style: TextStyle(fontSize: 12, color: Warna.teksSamar),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: Jarak.sm,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Warna.peringatanMuda,
+                        borderRadius: BorderRadius.circular(Sudut.pil),
+                      ),
+                      child: const Text(
+                        'Belum dibayar',
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                          color: Warna.peringatan,
+                        ),
+                      ),
                     ),
                   ],
                 ],
@@ -174,8 +201,8 @@ class _FotoKecil extends StatelessWidget {
     return ClipRRect(
       borderRadius: BorderRadius.circular(Sudut.kolomIsian),
       child: SizedBox(
-        width: 56,
-        height: 56,
+        width: 58,
+        height: 58,
         child: alamatFoto == null
             ? Container(
                 color: Warna.aksenLembut,
@@ -198,19 +225,24 @@ class _FotoKecil extends StatelessWidget {
                     color: Warna.teksSamar,
                   ),
                 ),
-                loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? progress) {
-                  if (progress == null) return child;
-                  return Container(
-                    color: Warna.aksenLembut,
-                    child: const Center(
-                      child: SizedBox(
-                        width: 16,
-                        height: 16,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      ),
-                    ),
-                  );
-                },
+                loadingBuilder:
+                    (
+                      BuildContext context,
+                      Widget child,
+                      ImageChunkEvent? progress,
+                    ) {
+                      if (progress == null) return child;
+                      return Container(
+                        color: Warna.aksenLembut,
+                        child: const Center(
+                          child: SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          ),
+                        ),
+                      );
+                    },
               ),
       ),
     );
@@ -235,7 +267,11 @@ class _InfoKecil extends StatelessWidget {
       children: <Widget>[
         Text(
           label,
-          style: const TextStyle(fontSize: 11.5, color: Warna.teksSamar),
+          style: const TextStyle(
+            fontSize: 11,
+            fontWeight: FontWeight.w500,
+            color: Warna.teksSamar,
+          ),
         ),
         const SizedBox(height: 2),
         Text(
@@ -244,7 +280,7 @@ class _InfoKecil extends StatelessWidget {
           overflow: TextOverflow.ellipsis,
           style: TextStyle(
             fontSize: 13,
-            fontWeight: FontWeight.w600,
+            fontWeight: FontWeight.w700,
             color: warnaNilai ?? Warna.teksUtama,
           ),
         ),

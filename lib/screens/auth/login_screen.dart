@@ -5,7 +5,6 @@ import '../../services/api_client.dart';
 import '../../services/auth_service.dart';
 import '../../utils/validasi.dart';
 import '../../widgets/app_logo.dart';
-import '../../widgets/pesan_ui.dart';
 import 'register_screen.dart';
 
 /// Halaman masuk untuk admin dan pelanggan.
@@ -41,9 +40,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
     // Misalnya sesi sebelumnya berakhir karena token kedaluwarsa.
     _pesanGagal = AuthService.instance.ambilPesanUntukLogin();
-
-    // Enter pada kolom email langsung pindah ke kolom kata sandi.
-    _email.addListener(() {});
   }
 
   @override
@@ -100,144 +96,179 @@ class _LoginScreenState extends State<LoginScreen> {
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.all(Jarak.xl),
+            padding: const EdgeInsets.fromLTRB(
+              Jarak.xl,
+              Jarak.xxl,
+              Jarak.xl,
+              Jarak.xl,
+            ),
             child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 460),
-              child: Form(
-                key: _kunciForm,
-                autovalidateMode: _modeValidasi,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    const Center(child: AppLogo(ukuran: 68)),
-                    const SizedBox(height: Jarak.lg),
-                    const Center(
-                      child: NamaAplikasi(
-                        ukuranJudul: 24,
-                        rataTengah: true,
-                        tampilkanSlogan: false,
+              constraints: const BoxConstraints(maxWidth: 440),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: <Widget>[
+                  // Bagian brand: logo, nama, dan jenis produk. Ditaruh di
+                  // luar kartu supaya halaman tetap terasa lapang di layar
+                  // kecil.
+                  const Center(child: AppLogo(ukuran: 72)),
+                  const SizedBox(height: Jarak.lg),
+                  const Center(
+                    child: NamaAplikasi(
+                      ukuranJudul: 26,
+                      rataTengah: true,
+                      tampilkanSlogan: false,
+                    ),
+                  ),
+                  const SizedBox(height: Jarak.xs),
+                  const Center(
+                    child: Text(
+                      NamaAplikasi.deskripsi,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 12.5,
+                        fontWeight: FontWeight.w600,
+                        color: Warna.teksKedua,
                       ),
                     ),
-                    const SizedBox(height: Jarak.xs),
-                    const Center(
-                      child: Text(
-                        NamaAplikasi.slogan,
+                  ),
+
+                  const SizedBox(height: Jarak.xl),
+
+                  Container(
+                    padding: const EdgeInsets.all(Jarak.xl),
+                    decoration: BoxDecoration(
+                      color: Warna.permukaan,
+                      borderRadius: BorderRadius.circular(Sudut.kartu),
+                      border: Border.all(color: Warna.garis),
+                      boxShadow: bayanganKartu,
+                    ),
+                    child: Form(
+                      key: _kunciForm,
+                      autovalidateMode: _modeValidasi,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          const Text(
+                            'Masuk',
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.w700,
+                              color: Warna.teksUtama,
+                            ),
+                          ),
+                          const SizedBox(height: Jarak.xs),
+                          const Text(
+                            'Gunakan email dan kata sandi akun RENOVA Anda.',
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: Warna.teksKedua,
+                              height: 1.5,
+                            ),
+                          ),
+
+                          if (_pesanGagal != null) ...<Widget>[
+                            const SizedBox(height: Jarak.lg),
+                            _KotakPesan(pesan: _pesanGagal!),
+                          ],
+
+                          const SizedBox(height: Jarak.xl),
+
+                          TextFormField(
+                            controller: _email,
+                            enabled: !_sedangKirim,
+                            keyboardType: TextInputType.emailAddress,
+                            textInputAction: TextInputAction.next,
+                            autofillHints: const <String>[AutofillHints.email],
+                            decoration: const InputDecoration(
+                              labelText: 'Email',
+                              hintText: 'nama@email.com',
+                              prefixIcon: Icon(Icons.mail_outline_rounded),
+                            ),
+                            validator: Validasi.email,
+                            onFieldSubmitted: (_) =>
+                                _fokusPassword.requestFocus(),
+                          ),
+
+                          const SizedBox(height: Jarak.lg),
+
+                          TextFormField(
+                            controller: _password,
+                            focusNode: _fokusPassword,
+                            enabled: !_sedangKirim,
+                            obscureText: _passwordTersembunyi,
+                            textInputAction: TextInputAction.done,
+                            autofillHints: const <String>[
+                              AutofillHints.password,
+                            ],
+                            decoration: InputDecoration(
+                              labelText: 'Kata sandi',
+                              prefixIcon: const Icon(Icons.lock_outline_rounded),
+                              suffixIcon: IconButton(
+                                onPressed: () => setState(
+                                  () => _passwordTersembunyi =
+                                      !_passwordTersembunyi,
+                                ),
+                                tooltip: _passwordTersembunyi
+                                    ? 'Tampilkan kata sandi'
+                                    : 'Sembunyikan kata sandi',
+                                icon: Icon(
+                                  _passwordTersembunyi
+                                      ? Icons.visibility_outlined
+                                      : Icons.visibility_off_outlined,
+                                ),
+                              ),
+                            ),
+                            validator: Validasi.passwordMasuk,
+                            onFieldSubmitted: (_) => _masuk(),
+                          ),
+
+                          const SizedBox(height: Jarak.xl),
+
+                          FilledButton(
+                            onPressed: _sedangKirim ? null : _masuk,
+                            child: _sedangKirim
+                                ? const SizedBox(
+                                    width: 22,
+                                    height: 22,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2.4,
+                                      color: Colors.white,
+                                    ),
+                                  )
+                                : const Text('Masuk'),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: Jarak.lg),
+
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      const Text(
+                        'Belum punya akun?',
                         style: TextStyle(
-                          fontSize: 13,
+                          fontSize: 13.5,
                           color: Warna.teksKedua,
                         ),
                       ),
-                    ),
-
-                    const SizedBox(height: Jarak.xxl),
-
-                    const Text(
-                      'Masuk',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w600,
-                        color: Warna.teksUtama,
+                      TextButton(
+                        onPressed: _sedangKirim ? null : _bukaDaftar,
+                        child: const Text('Daftar di sini'),
                       ),
-                    ),
-                    const SizedBox(height: Jarak.xs),
-                    const Text(
-                      'Gunakan email dan kata sandi akun LaundryKu Anda.',
-                      style: TextStyle(
-                        fontSize: 13.5,
-                        color: Warna.teksKedua,
-                        height: 1.5,
-                      ),
-                    ),
-
-                    if (_pesanGagal != null) ...<Widget>[
-                      const SizedBox(height: Jarak.lg),
-                      _KotakPesan(pesan: _pesanGagal!),
                     ],
+                  ),
 
-                    const SizedBox(height: Jarak.xl),
+                  const SizedBox(height: Jarak.sm),
 
-                    TextFormField(
-                      controller: _email,
-                      enabled: !_sedangKirim,
-                      keyboardType: TextInputType.emailAddress,
-                      textInputAction: TextInputAction.next,
-                      autofillHints: const <String>[AutofillHints.email],
-                      decoration: const InputDecoration(
-                        labelText: 'Email',
-                        hintText: 'nama@email.com',
-                      ),
-                      validator: Validasi.email,
-                      onFieldSubmitted: (_) =>
-                          _fokusPassword.requestFocus(),
-                    ),
-
-                    const SizedBox(height: Jarak.lg),
-
-                    TextFormField(
-                      controller: _password,
-                      focusNode: _fokusPassword,
-                      enabled: !_sedangKirim,
-                      obscureText: _passwordTersembunyi,
-                      textInputAction: TextInputAction.done,
-                      autofillHints: const <String>[AutofillHints.password],
-                      decoration: InputDecoration(
-                        labelText: 'Kata sandi',
-                        suffixIcon: IconButton(
-                          onPressed: () => setState(
-                            () => _passwordTersembunyi = !_passwordTersembunyi,
-                          ),
-                          tooltip: _passwordTersembunyi
-                              ? 'Tampilkan kata sandi'
-                              : 'Sembunyikan kata sandi',
-                          icon: Icon(
-                            _passwordTersembunyi
-                                ? Icons.visibility_outlined
-                                : Icons.visibility_off_outlined,
-                          ),
-                        ),
-                      ),
-                      validator: Validasi.passwordMasuk,
-                      onFieldSubmitted: (_) => _masuk(),
-                    ),
-
-                    const SizedBox(height: Jarak.xl),
-
-                    FilledButton(
-                      onPressed: _sedangKirim ? null : _masuk,
-                      child: _sedangKirim
-                          ? const SizedBox(
-                              width: 22,
-                              height: 22,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2.4,
-                                color: Colors.white,
-                              ),
-                            )
-                          : const Text('Masuk'),
-                    ),
-
-                    const SizedBox(height: Jarak.lg),
-
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        const Text(
-                          'Belum punya akun?',
-                          style: TextStyle(
-                            fontSize: 13.5,
-                            color: Warna.teksKedua,
-                          ),
-                        ),
-                        TextButton(
-                          onPressed: _sedangKirim ? null : _bukaDaftar,
-                          child: const Text('Daftar di sini'),
-                        ),
-                      ],
-                    ),
-
-                    const SizedBox(height: Jarak.lg),
-                  ],
-                ),
+                  const Text(
+                    NamaAplikasi.slogan,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 12, color: Warna.teksSamar),
+                  ),
+                ],
               ),
             ),
           ),
@@ -261,20 +292,29 @@ class _KotakPesan extends StatelessWidget {
       decoration: BoxDecoration(
         color: Warna.bahayaMuda,
         borderRadius: BorderRadius.circular(Sudut.kolomIsian),
+        border: Border.all(color: const Color(0xFFFECACA)),
       ),
-      child: Text(
-        pesan,
-        style: const TextStyle(
-          fontSize: 13,
-          color: Warna.bahaya,
-          height: 1.5,
-        ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          const Icon(
+            Icons.error_outline_rounded,
+            size: 18,
+            color: Warna.bahaya,
+          ),
+          const SizedBox(width: Jarak.sm),
+          Expanded(
+            child: Text(
+              pesan,
+              style: const TextStyle(
+                fontSize: 13,
+                color: Warna.bahaya,
+                height: 1.5,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
-}
-
-/// Dipakai halaman lain untuk menampilkan kegagalan dalam bentuk yang sama.
-void tampilkanPesanGagal(BuildContext context, String pesan) {
-  tampilkanPesan(context, pesan, jenis: JenisPesan.gagal);
 }

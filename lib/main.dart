@@ -54,7 +54,7 @@ class _AplikasiLaundryKuState extends State<AplikasiLaundryKu> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'LaundryKu',
+      title: 'RENOVA',
       debugShowCheckedModeBanner: false,
       navigatorKey: kunciNavigator,
       theme: AppTheme.terang(),
